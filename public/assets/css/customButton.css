@@ -1,0 +1,11 @@
+#navLogin {
+    background-color: white
+    background-image: linear-gradient(to bottom, #fff 0%, #fff 100%);
+    color: #428bca;
+}
+
+#navLogin:hover {
+    background-color: white
+    background-image: linear-gradient(to bottom, #fff 0%, #fff 100%);
+    color: #428bca;
+}
