@@ -8,12 +8,6 @@
     
     {{ HTML::style('assets/css/bootstrap-theme.css') }}
     
-    {{ HTML::style('assets/css/carousel.css') }}
-    
-    {{ HTML::style('assets/css/navBar-custom.css') }}
-    
-    {{ HTML::style('assets/css/customButton.css') }}
-    
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
@@ -27,10 +21,9 @@
     @yield('section')
     
     
-    
+      <hr>
       <!-- FOOTER -->
       <footer>
-        <p class="pull-right"><a href="#">Volver al inicio</a></p>
         <p>&copy; 2014 YGG &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
       </footer>
 

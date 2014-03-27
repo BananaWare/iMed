@@ -38,7 +38,7 @@
             @if(Auth::check())   
               <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                  <button href="#" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
+                  <button href="#" class="btn btn-primary navbar-btn dropdown-toggle" data-toggle="dropdown">
                       <span>
                           {{ Auth::user()->names }}
                       </span><span class="caret"></span></button>
