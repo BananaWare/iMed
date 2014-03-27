@@ -10,13 +10,11 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
+//Pagina principal donde está el formulario de identificación
+Route::get('/', ['uses' => 'HomeController@index', 'before' => 'guest']);
 
-    Route::get('/', 'HomeController@index');
+Route::get('/signin', ['uses' => 'AuthController@showLogin', 'before' => 'guest']);
 
-    // Nos mostrará el formulario de login.
-    Route::get('login', 'AuthController@showLogin');
-    
-    // Validamos los datos de inicio de sesión.
-    Route::post('login', 'AuthController@postLogin');
+Route::post('/signin', ['uses' => 'AuthController@doLogin', 'before' => 'guest']);
 
-    Route::get('logout', 'AuthController@logOut');
+Route::get('/logout', ['uses' => 'AuthController@doLogOut', 'before' => 'auth']);
