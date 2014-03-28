@@ -8,6 +8,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
+          <button type="button" class="navbar-toggle pull-left sidebar-button" data-toggle="offcanvas" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>    
           <a class="navbar-brand" href="#">iMed</a>
         </div>
         

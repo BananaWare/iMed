@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@yield('title')</title>
-    {{ HTML::style('assets/css/bootstrap.css') }}
+    {{ HTML::style('assets/css/bootstrap.min.css') }}
     
-    {{ HTML::style('assets/css/bootstrap-theme.css') }}
+    {{ HTML::style('assets/css/navBar.css') }}
     {{ HTML::style('assets/css/form-signin.css') }}
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -21,12 +21,7 @@
     @yield('section')
        
       <hr>
-      <!-- FOOTER -->
-      <footer>
-        <div class="container">
-        <p>&copy; 2014 YGG &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
-        </div>
-      </footer>
+    @include('footer.footer')
 
 
 <!-- scripts -->

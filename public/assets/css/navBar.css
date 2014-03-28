@@ -1,0 +1,18 @@
+.navbar-toggle {
+  position: relative;
+  float: right;
+  margin-right: 15px;
+  margin-left: 15px;
+  padding: 9px 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin-left: 15px;
+}
+
+.sidebar-button {
+ background-color: #428bca; 
+}

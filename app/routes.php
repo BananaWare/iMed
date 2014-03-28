@@ -24,6 +24,10 @@ Route::get('/logout', ['uses' => 'AuthController@doLogOut', 'before' => 'auth'])
 
 Route::get('/secretary', ['uses' => 'SecretaryController@index', 'before' => 'auth']);
 
+Route::get('/secretary/assignhour', ['uses' => 'SecretaryController@showAssignHour', 'before' => 'secretary']);
+
+Route::post('/secretary/assignhour', ['uses' => 'SecretaryController@doAssignHour', 'before' => 'secretary']);
+
 Route::get('/createPatient', ['uses' => 'SecretaryController@createPatient', 'before' => 'secretary']);
 
 Route::get('/createSecretary', ['uses' => 'DoctorController@createDoctor', 'before' => 'doctor']);
