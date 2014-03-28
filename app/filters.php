@@ -37,6 +37,15 @@ Route::filter('auth', function()
   if (Auth::guest()) return Redirect::guest('/signin')->with('msg', 'Debes iniciar sesión primero');;
 });
 
+Route::filter('secretary', function()
+{
+  if (Auth::guest() || Auth::user()->role != 'secretary' ) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
+});
+
+Route::filter('doctor', function()
+{
+  if (Auth::guest() || Auth::user()->role != 'doctor' ) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
+});
 
 Route::filter('auth.basic', function()
 {

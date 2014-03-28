@@ -2,15 +2,27 @@
 
 class AuthController extends BaseController {
     
-    protected $layout = 'layouts.default';
     public function showLogin()
     {
-        $this->layout->header = View::make('navbars.homeNavBar');
-        $this->layout->content = View::make('login.signin'); 
+      return View::make('login.signin'); 
     }
     
     public function doLogin()
     {
+      $data = Input::all();
+      $rules = array(
+        'username' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/'),
+        'password' => 'required|max:15'
+      );
+  
+      // Create a new validator instance.
+      $validator = Validator::make($data, $rules);
+  
+      if (!$validator->passes()) {
+        return Redirect::to('signin')
+          ->with('error_message', 'Datos en formato no válido')
+                      ->withInput();
+      }
         list($rut, $dv) = explode("-", Input::get('username'));
         // Guardamos en un arreglo los datos del usuario.
         $userdata = array(
@@ -26,7 +38,7 @@ class AuthController extends BaseController {
         }
         // En caso de que la autenticación haya fallado manda un mensaje al formulario de login y también regresamos los valores enviados con withInput().
         
-      return Redirect::to('/')
+      return Redirect::to('signin')
         ->with('error_message', 'RUT y/o contraseña incorrecta')
                     ->withInput();
     }

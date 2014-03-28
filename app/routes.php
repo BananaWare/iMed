@@ -10,11 +10,20 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
+//Pagina solo para testeo.
+Route::get('/test', [function() { return View::make('test'); } ]);
+
 //Pagina principal donde está el formulario de identificación
-Route::get('/', ['uses' => 'HomeController@index', 'before' => 'guest']);
+Route::get('/', ['uses' => 'HomeController@index']);
 
 Route::get('/signin', ['uses' => 'AuthController@showLogin', 'before' => 'guest']);
 
 Route::post('/signin', ['uses' => 'AuthController@doLogin', 'before' => 'guest']);
 
 Route::get('/logout', ['uses' => 'AuthController@doLogOut', 'before' => 'auth']);
+
+Route::get('/secretary', ['uses' => 'SecretaryController@index', 'before' => 'auth']);
+
+Route::get('/createPatient', ['uses' => 'SecretaryController@createPatient', 'before' => 'secretary']);
+
+Route::get('/createSecretary', ['uses' => 'DoctorController@createDoctor', 'before' => 'doctor']);
