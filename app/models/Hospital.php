@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Auth\UserInterface;
+use Illuminate\Auth\Reminders\RemindableInterface;
+
+class Hospital extends Eloquent {
+
+	/**
+	 * The database table used by the model.
+	 *
+	 * @var string
+	 */
+	protected $table = 'hospitals';
+  protected $primaryKey = 'idHospital';
+  /*
+  public function doctor()
+  {
+    return $this->belongsTo('User', 'doctorsRut', 'rut');
+  }
+  
+  public function assinger()
+  {
+    return $this->belongsTo('User', 'assignersRut', 'rut');
+  }
+  */
+  public function patientsInfo()
+  {
+    return $this->hasMany('UserInfo', 'idHospital');
+  }
+}

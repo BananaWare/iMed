@@ -22,12 +22,39 @@ Route::post('/signin', ['uses' => 'AuthController@doLogin', 'before' => 'guest']
 
 Route::get('/logout', ['uses' => 'AuthController@doLogOut', 'before' => 'auth']);
 
-Route::get('/secretary', ['uses' => 'SecretaryController@index', 'before' => 'auth']);
+Route::get('/dashboard', ['uses' => function() {
+    if(Auth::user()->role == 'doctor')
+    {
+      return Redirect::to('/doctor'); 
+    }
+    else if(Auth::user()->role == 'secretary')
+    {
+      return Redirect::to('/secretary'); 
+    }
+    else if(Auth::user()->role == 'patient')
+    {
+      return Redirect::to('/patient'); 
+    }
+  }, 'before' => 'auth']);
+
+Route::get('/secretary', ['uses' => 'SecretaryController@index', 'before' => 'secretary']);
+
+Route::get('/doctor', ['uses' => 'DoctorController@index', 'before' => 'doctor']);
 
 Route::get('/secretary/assignhour', ['uses' => 'SecretaryController@showAssignHour', 'before' => 'secretary']);
 
 Route::post('/secretary/assignhour', ['uses' => 'SecretaryController@doAssignHour', 'before' => 'secretary']);
 
+Route::get('/doctor/secretaries', ['uses' => 'DoctorController@showSecretaries', 'before' => 'doctor']);
+
+Route::get('/doctor/patients', ['uses' => 'DoctorController@showPatients', 'before' => 'doctor']);
+
 Route::get('/createPatient', ['uses' => 'SecretaryController@createPatient', 'before' => 'secretary']);
 
-Route::get('/createSecretary', ['uses' => 'DoctorController@createDoctor', 'before' => 'doctor']);
+Route::post('/assignSecretary', ['uses' => 'DoctorController@doAssignSecretary', 'before' => 'doctor']);
+
+Route::post('/lockSecretary', ['uses' => 'DoctorController@doLockSecretary', 'before' => 'doctor']);
+
+Route::post('/unlockSecretary', ['uses' => 'DoctorController@doUnlockSecretary', 'before' => 'doctor']);
+
+Route::post('/unassignSecretary', ['uses' => 'DoctorController@doUnassignSecretary', 'before' => 'doctor']);

@@ -12,6 +12,7 @@ class DoctorSchedule extends Eloquent {
 	 */
 	protected $table = 'doctors_schedules';
   protected $primaryKey = 'idDoctorSchedule';
+  //protected $appends = array('NumberDayOfWeek');  
   
   public function doctor()
   {
