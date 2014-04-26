@@ -52,15 +52,20 @@ class SecretaryController extends BaseController {
   {
     $user = new User();
     $userInfo = new UserInfo();
-    if(!$this->doCreateUser($user, $userInfo))
-      return Redirect::to('/createPatient')
-        ->with('error_message', 'Datos en formato no válido')
-        ->withInput();
+    $doCreateUserValidator = $this->doCreateUser($user, $userInfo);
+    if($doCreateUserValidator->fails())
+      return Redirect::to('/patients')
+        ->withInput()
+        ->withErrors($doCreateUserValidator);
+    
     
     $user->role = 'patient';
    
     $user->save();
     $userInfo->save();
+    
+    $user['userInfo'] = $userInfo->toArray();
+    return $user->toJson();
   }
   
   /**
@@ -73,53 +78,60 @@ class SecretaryController extends BaseController {
   {
     $data = Input::all();
     $rules = array(
-      'rut' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/')
+      'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/')
     );
-  
     $validator = Validator::make($data, $rules);
     
     if ($validator->fails()) {
-      return false;
+      return $validator;
     }
     
-    if(!$this->setUserWithInputs($user, $userInfo))
-      return false;
+    $setUserWithInputs = $this->setUserWithInputs($user, $userInfo);
+    if($setUserWithInputs->fails())
+      return $setUserWithInputs;
     
-    list($user->rut, $user->dv) = explode("-", Input::get('rut'));
+    $rutSinPuntos = str_replace(".", "", Input::get('rut'));    
+    list($user->rut, $user->dv) = explode("-", $rutSinPuntos);
     $userInfo->rut = $user->rut;
     $userInfo->dv = $user->dv;
-    // TODO: cambiar esto.
-    $userInfo->idHospital = 1;
-    //$userInfo->idHospital = Input::get('idHospital');
-    return true;
+    $userInfo->idHospital = Input::get('idHospital');
+    return $setUserWithInputs;
   }
  
   public function doModifyPatient()
   {
     $data = Input::all();
     $rules = array(
-      'rut' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/')
+      'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/')
     );
-  
+    
     $validator = Validator::make($data, $rules);
     
     if ($validator->fails()) {
-      return Redirect::to('/modifyPatient');
+      return Redirect::to('/patients')
+        ->withInput()
+        ->withErrors($validator);
     }
+    $rutSinPuntos = str_replace(".", "", Input::get('rut'));
+    list($rut, $dv) = explode("-", $rutSinPuntos);
+    $user = User::where('rut', '=', $rut)->where('role', '=', 'patient')->first();
+    $userInfo = UserInfo::where('rut', '=', $rut)
+      ->where('idHospital', '=', Input::get('idHospital'))->first();
     
-    //$user = User::whereRaw('role = patient and rut = ?', Input::get('rut'))->first();
-    $user = User::where('rut', '=', Input::get('rut'))->first();
-    //TODO: cambiar el numero de idHospital.
-    //$userInfo = UserInfo::whereRaw('rut = ? and idHospital = ?', Input::get('rut'), 1)->first();
-    $userInfo = UserInfo::where('rut', '=', Input::get('rut'))->where('role', '=', 'patient')
-      ->where('idHospital', '=', 1)->first();
-    if (!$this->setUserWithInputs($user, $userInfo))
-      return Redirect::to('/modifyPatient')
-        ->with('error_message', 'Datos en formato no válido')
-        ->withInput();
-    
+    $setUserWithInputsValidator = $this->setUserWithInputs($user, $userInfo);
+    if($setUserWithInputsValidator->fails())
+    {
+      return Redirect::to('/patients')
+        ->withInput()
+        ->withErrors($setUserWithInputsValidator);
+    }
+      /* $asdf = $validator->messages();
+    $qq = $asdf->all();
+      foreach ($qq as $q)
+      echo $qq[0];*/
     $user->save();
     $userInfo->save();
+    
   }
   
   /**
@@ -135,36 +147,42 @@ class SecretaryController extends BaseController {
       'name' => 'required',
       'lastname' => 'required|max:15',
       'gender' => 'required|in:male,female',
-      'birthDate' => 'date',
+      'birthdate' => 'date',
       'email' => 'email',
-      'phone' => 'numeric'
+      'phone' => 'numeric',
+      'idHospital' => 'numeric'
     );
   
     $validator = Validator::make($data, $rules);
     
-    if ($validator->fails()) {
-      return false;
+    if (!$validator->fails()) {
+      
+      //return false;
+      $rutSinPuntos = str_replace(".", "", Input::get('rut'));
+      list($rut, $dv) = explode("-", $rutSinPuntos);
+      $user = User::find($rut);
+      $userInfo = UserInfo::where('rut', '=', $rut)->where('idHospital', '=', Input::get('idHospital'))->first();
+      
+      $user->name = Input::get('name');
+      $user->lastname = Input::get('lastname');
+      $user->gender = Input::get('gender') == '' ? null : Input::get('gender');
+      $user->birthdate = Input::get('birthdate') == '' ? null : Input::get('birthdate');
+      
+      $userInfo->email = Input::get('email') == '' ? null : Input::get('email');
+      $userInfo->phone = Input::get('phone') == '' ? null : Input::get('phone');
+      $userInfo->city = Input::get('city') == '' ? null : Input::get('city');
     }
-    list($user->rut, $user->dv) = explode("-", Input::get('rut'));
-    $userInfo->rut = $user->rut;
-    //list($user->rut, $user->dv) = explode("-", Input::get('rut'));
-    $user->name = Input::get('name');
-    $user->lastname = Input::get('lastname');
-    $user->gender = Input::get('gender');
-    $user->birthDate = Input::get('birthDate');
-    
-    $userInfo->email = Input::get('email');
-    $userInfo->phone = Input::get('phone');
-    return true;
+    return $validator;
   }
   public function doRemovePatient()
   {
     $data = Input::all();
     $rules = array(
-      'rut' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/'),
+      'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/'),
       'idHospital' => 'required|numeric'
     );
-    list($rut, $dv) = explode("-", Input::get('rut'));
+    $rutSinPuntos = str_replace(".", "", Input::get('rut'));
+    list($rut, $dv) = explode("-", $rutSinPuntos);
     
     $validator = Validator::make($data, $rules);
     
@@ -182,8 +200,8 @@ class SecretaryController extends BaseController {
   {
     $data = Input::all();
     $rules = array(
-      'doctorsRut' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/'),
-      'patientsRut' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/'),
+      'doctorsRut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/'),
+      'patientsRut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/'),
       'dateTimeAssignRut' => 'required|date'
     );
   
@@ -227,7 +245,7 @@ class SecretaryController extends BaseController {
   {
     $data = Input::all();
     $rules = array(
-      'rut' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/')
+      'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/')
     );
   
     $validator = Validator::make($data, $rules);
@@ -235,9 +253,13 @@ class SecretaryController extends BaseController {
     if ($validator->fails()) {
       return Redirect::to('/patients');
     }
+    
+    $rutSinPuntos = str_replace(".", "", Input::get('rut'));
+    list($rut, $dv) = explode("-", $rutSinPuntos);
+    
     //TODO: cambiar el numero de idHospital.
-    //$userInfo = UserInfo::whereRaw('role = patient and rut = ? and idHospital = ?', Input::get('rut'), 1)->first();
-    $userInfo = UserInfo::where('role', '=', 'patient')->where('rut', '=', Input::get('rut'))
+    $user = User::find($rut);
+    $userInfo = UserInfo::where('role', '=', 'patient')->where('rut', '=', $rut)
       ->where('idHospital', '=', 1)->first();
   }
   

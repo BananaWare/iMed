@@ -26,9 +26,9 @@ class DoctorScheduleTableSeeder extends Seeder
       'doctorsRut' => '17560861',
       'idHospital' => '1',
       'dayOfWeek' => '4',
-      'startHour'     => '13:00:00',
-      'endHour' => '20:00:00',
-      'intervalTime' => '00:30:00'
+      'startHour'     => '11:30:00',
+      'endHour' => '16:00:00',
+      'intervalTime' => '00:45:00'
     ));
     DoctorSchedule::create(array(
       'doctorsRut' => '17560861',

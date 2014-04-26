@@ -14,7 +14,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'Gallardo',
       'role' => 'doctor',
       'gender' => 'male',
-      'birthDate' => '1991-12-30'
+      'birthdate' => '1991-12-30'
     ));
     User::create(array(
       'rut' => '121212',
@@ -24,7 +24,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'DosUno',
       'role' => 'doctor',
       'gender' => 'female',
-      'birthDate' => '1982-11-10'
+      'birthdate' => '1982-11-10'
     ));
     User::create(array(
       'rut' => '311331',
@@ -34,7 +34,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'Serrano',
       'role' => 'secretary',
       'gender' => 'female',
-      'birthDate' => '1972-03-21'
+      'birthdate' => '1972-03-21'
     ));
     User::create(array(
       'rut' => '18218547',
@@ -44,7 +44,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'Rojas',
       'role' => 'secretary',
       'gender' => 'male',
-      'birthDate' => '1992-05-09'
+      'birthdate' => '1992-05-09'
     ));
     User::create(array(
       'rut' => '123123123',
@@ -54,7 +54,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'ciente',
       'role' => 'patient',
       'gender' => 'male',
-      'birthDate' => '1991-03-09'
+      'birthdate' => '1991-03-09'
     ));
     User::create(array(
       'rut' => '321321321',
@@ -64,7 +64,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'pepa',
       'role' => 'patient',
       'gender' => 'female',
-      'birthDate' => '1951-02-21'
+      'birthdate' => '1951-02-21'
     ));
     User::create(array(
       'rut' => '7878787',
@@ -74,7 +74,7 @@ class UserTableSeeder extends Seeder
       'lastname' => 'ramon',
       'role' => 'patient',
       'gender' => 'male',
-      'birthDate' => '1947-12-25'
+      'birthdate' => '1947-12-25'
     ));
   }
 

@@ -126,7 +126,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   
   public function getAgeAttribute()
   {
-    $from = new DateTime($this->birthDate);
+    $from = new DateTime($this->birthdate);
     $to = new DateTime('today');
     return $from->diff($to)->y;;
   }

@@ -3744,7 +3744,7 @@ function AgendaView(element, calendar, viewName) {
 				"<tr class='fc-slot" + slotCnt + ' ' + (!minutes ? '' : 'fc-minor') + "'>" +
 				"<th class='fc-agenda-axis " + headerClass + "'>" +
 				((!slotNormal || !minutes || allRowsTimestamp) ?
-         ((hasAxisRange) ? htmlEscape(formatDate(slotDate, opt('axisFormat'))) + ' ' + axisRangeSeparator + ' ' + htmlEscape(formatDate(slotDate.add('minutes', slotDuration.minutes()), opt('axisFormat'))) : htmlEscape(formatDate(slotDate, opt('axisFormat')))) :
+         ((hasAxisRange) ? htmlEscape(formatDate(slotDate, opt('axisFormat'))) + ' ' + axisRangeSeparator + ' ' + htmlEscape(formatDate(slotDate.add('minutes', slotDuration.minutes() - 1), opt('axisFormat'))) : htmlEscape(formatDate(slotDate, opt('axisFormat')))) :
 					'&nbsp;'
 					) +
 				"</th>" +

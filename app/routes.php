@@ -49,7 +49,24 @@ Route::get('/doctor/secretaries', ['uses' => 'DoctorController@showSecretaries',
 
 Route::get('/doctor/patients', ['uses' => 'DoctorController@showPatients', 'before' => 'doctor']);
 
-Route::get('/createPatient', ['uses' => 'SecretaryController@createPatient', 'before' => 'secretary']);
+Route::get('/patients', ['uses' => function() {
+    if(Auth::user()->role == 'doctor')
+    {
+      return Redirect::to('/doctor/patients'); 
+    }
+    else if(Auth::user()->role == 'secretary')
+    {
+      return Redirect::to('/secretary/patients'); 
+    }
+  }, 'before' => 'auth']);
+
+Route::post('/doctor/createPatient', ['uses' => 'DoctorController@doCreatePatient', 'before' => 'doctor']);
+
+Route::post('/secretary/createPatient', ['uses' => 'SecretaryController@doCreatePatient', 'before' => 'secretary']);
+
+Route::post('/doctor/modifyPatient', ['uses' => 'DoctorController@doModifyPatient', 'before' => 'doctor']);
+
+Route::post('/secretary/modifyPatient', ['uses' => 'SecretaryController@doModifyPatient', 'before' => 'secretary']);
 
 Route::post('/assignSecretary', ['uses' => 'DoctorController@doAssignSecretary', 'before' => 'doctor']);
 

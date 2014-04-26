@@ -30,10 +30,21 @@ class PatientHourTableSeeder extends Seeder
       'doctorsRut' => '17560861',
       'assignersRut' => '18218547',
       'patientsRut' => '123123123',
-      'dateTimeAssign'     => '2014-04-04 16:30:00',
-      'dateTimeEnd'     => '2014-04-04 17:00:00',
+      'dateTimeAssign'     => '2014-04-03 14:30:00',
+      'dateTimeEnd'     => '2014-04-03 15:15:00',
       'reason' => 'tiene el brazo morado',
       'confirmed' => '1',
+      'idHospital' => '1'
+    ));
+    
+    PatientHour::create(array(
+      'doctorsRut' => '17560861',
+      'assignersRut' => '18218547',
+      'patientsRut' => '123123123',
+      'dateTimeAssign'     => '2014-04-03 13:45:00',
+      'dateTimeEnd'     => '2014-04-03 14:30:00',
+      'reason' => 'tiene el brazo morado',
+      'confirmed' => '0',
       'idHospital' => '1'
     ));
   }

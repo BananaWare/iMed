@@ -17,6 +17,15 @@ class DoctorController extends SecretaryController {
   public function doAssignSecretary()
   {
     define('PASSWORD', "1234");
+    $data = Input::all();
+    $rules = array(
+      'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/')
+    );
+    $validator = Validator::make($data, $rules);
+    
+    if ($validator->fails()) {
+      return $validator;
+    }
     $rutSinPuntos = str_replace(".", "", Input::get('rut'));
     list($rut, $dv) = explode("-", $rutSinPuntos);
     $secretary = User::where('role', '=', 'secretary')
