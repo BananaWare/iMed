@@ -23,11 +23,12 @@ Route::post('/signin', ['uses' => 'AuthController@doLogin', 'before' => 'guest']
 Route::get('/logout', ['uses' => 'AuthController@doLogOut', 'before' => 'auth']);
 
 Route::get('/dashboard', ['uses' => function() {
-    if(Auth::user()->role == 'doctor')
+  
+    if(Auth::user()->isDoctor)
     {
       return Redirect::to('/doctor'); 
     }
-    else if(Auth::user()->role == 'secretary')
+    else if(Auth::user()->isSecretary == 'secretary')
     {
       return Redirect::to('/secretary'); 
     }

@@ -61,129 +61,131 @@ var eventClickEvent = function(calEvent, jsEvent, view) {
         //$('#secretariesModal').modal('show');
 }
 
+var hospitalSelected;
 var hospitalsComboSelectionChange = function(event, combo, selection){
-  selection = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
-    dataTable.dataTable().fnDestroy();
-    dataTable = $('#patientsTable').dataTable({
-      "aoColumnDefs": [
-        {
-          // `data` refers to the data for the cell (defined by `mData`, which
-          // defaults to the column being worked with, in this case is the first
-          // Using `row[0]` is equivalent.
-          "mData": "name",
-          "mRender": function ( data, type, row ) {
-            return row['fullName'];
-          },
-          "aTargets": [ 0 ]
-        },
-        {
-          "mData": "rut",
-          "mRender": function ( data, type, row ) {
-            return row['rutFormated'];
-          },
-          "aTargets": [ 1 ]
-        },
-        {
-          "mData": "age",
-          "mRender": function ( data, type, row ) {
-            return row['age'];
-          },
-          "aTargets": [ 2 ]
-        },
-        {
-          "mData": "userInfo.email",
-          "mRender": function ( data, type, row ) {
-            return row['userInfo'].email;
-          },
-          "aTargets": [ 3 ]
-        },
-        {
-          "mData": "userInfo.phone",
-          "mRender": function ( data, type, row ) {
-            return row['userInfo'].phone;
-          },
-          "aTargets": [ 4 ]
-        },
-        {
-          "mData": "userInfo.city",
-          "mRender": function ( data, type, row ) {
-            return row['userInfo'].city;
-          },
-          "aTargets": [ 5 ]
-        },
-        {
-          "mData": null,
-          "mRender": function ( data, type, row ) {
-            return "<a class='btn btn-warning' data-rut=" + row["rutFormated"] +
-              " data-name=" + (row["name"] == null ? "''" : row["name"]) +
-              " data-lastname=" + (row["lastname"] == null ? "''" : row["lastname"]) +
-              " data-gender=" + (row["gender"] == null ? "''" : row["gender"]) +
-              " data-birthdate=" + (row["birthdate"] == null ? "''" : row["birthdate"]) +
-              " data-email=" + (row["userInfo"].email == null ? "''" : row["userInfo"].email) +
-              " data-phone=" + (row["userInfo"].phone == null ? "''" : row["userInfo"].phone) +
-              " data-city=" + (row["userInfo"].city == null ? "''" : row["userInfo"].city) +
-              " onclick='modifyPatient(this)'>" +
-              "<i class='glyphicon glyphicon-pencil icon-white'></i> Modificar</a>";
-          },
-          "aTargets": [ 6 ]
-        }
-      ],
-      "sPaginationType": "full_numbers",
-      "aaData": selection.patients,
-      "oLanguage": {
-        "sProcessing":     "Procesando...",
-        "sLengthMenu":     "Mostrar _MENU_ registros",
-        "sZeroRecords":    "No se encontraron resultados",
-        "sEmptyTable":     "Ningún dato disponible en esta tabla",
-        "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-        "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
-        "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
-        "sInfoPostFix":    "",
-        "sSearch":         "Buscar:",
-        "sUrl":            "",
-        "sInfoThousands":  ",",
-        "sLoadingRecords": "Cargando...",
-        "oPaginate": {
-          "sFirst":    "Primero",
-          "sLast":     "Último",
-          "sNext":     "Siguiente",
-          "sPrevious": "Anterior"
-        }
-      },
-      "oAria": {
-        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
-        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-      }
-  });
- 
+  hospitalSelected = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
+  dataTable.dataTable().fnDestroy();
   
-    if (typeof selection !== "undefined")
-    {
-      patientsRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
-      patientsRutInput.prop('disabled', false);
+  if (undefined === hospitalSelected.patients)
+    hospitalSelected.patients = [];
+  dataTable = $('#patientsTable').dataTable({
+    "aoColumnDefs": [
+      {
+        // `data` refers to the data for the cell (defined by `mData`, which
+        // defaults to the column being worked with, in this case is the first
+        // Using `row[0]` is equivalent.
+        "mData": "name",
+        "mRender": function ( data, type, row ) {
+          return row['fullName'];
+        },
+        "aTargets": [ 0 ]
+      },
+      {
+        "mData": "rut",
+        "mRender": function ( data, type, row ) {
+          return row['rutFormated'];
+        },
+        "aTargets": [ 1 ]
+      },
+      {
+        "mData": "age",
+        "mRender": function ( data, type, row ) {
+          return row['age'];
+        },
+        "aTargets": [ 2 ]
+      },
+      {
+        "mData": "userInfo.email",
+        "mRender": function ( data, type, row ) {
+          return row['userInfo'].email;
+        },
+        "aTargets": [ 3 ]
+      },
+      {
+        "mData": "userInfo.phone",
+        "mRender": function ( data, type, row ) {
+          return row['userInfo'].phone;
+        },
+        "aTargets": [ 4 ]
+      },
+      {
+        "mData": "userInfo.city",
+        "mRender": function ( data, type, row ) {
+          return row['userInfo'].city;
+        },
+        "aTargets": [ 5 ]
+      },
+      {
+        "mData": null,
+        "mRender": function ( data, type, row ) {
+          return "<a class='btn btn-warning' data-rut=" + row["rutFormated"] + /*
+            " data-name=" + (row["name"] == null ? "''" : row["name"]) +
+            " data-lastname=" + (row["lastname"] == null ? "''" : row["lastname"]) +
+            " data-gender=" + (row["gender"] == null ? "''" : row["gender"]) +
+            " data-birthdate=" + (row["birthdate"] == null ? "''" : row["birthdate"]) +
+            " data-email=" + (row["userInfo"].email == null ? "''" : row["userInfo"].email) +
+            " data-phone=" + (row["userInfo"].phone == null ? "''" : row["userInfo"].phone) +
+            " data-city=" + (row["userInfo"].city == null ? "''" : row["userInfo"].city) +*/
+            " onclick='modifyPatient(this)'>" +
+            "<i class='glyphicon glyphicon-pencil icon-white'></i> Modificar</a>";
+        },
+        "aTargets": [ 6 ]
+      }
+    ],
+    "sPaginationType": "full_numbers",
+    "aaData": hospitalSelected.patients,
+    "oLanguage": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sInfoPostFix":    "",
+      "sSearch":         "Buscar:",
+      "sUrl":            "",
+      "sInfoThousands":  ",",
+      "sLoadingRecords": "Cargando...",
+      "oPaginate": {
+        "sFirst":    "Primero",
+        "sLast":     "Último",
+        "sNext":     "Siguiente",
+        "sPrevious": "Anterior"
+      }
+    },
+    "oAria": {
+      "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+      "sSortDescending": ": Activar para ordenar la columna de manera descendente"
     }
-    else
-    {
-      patientsRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
-      patientsRutInput.prop('disabled', true);
-      return;
-    }
+  });
+  
+  if (typeof hospitalSelected !== "undefined")
+  {
+    patientsRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
+    patientsRutInput.prop('disabled', false);
+  }
+  else
+  {
+    patientsRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
+    patientsRutInput.prop('disabled', true);
+    return;
+  }
 }
 
 var removePatient = function (e){
   var rut = e.dataset.rut;
-  var idHospital = selectHospitalCombo.magicSuggest().getSelectedItems()[0].idHospital;
+  var idHospital = hospitalSelected.idHospital;
   $.ajax({
     url: "/doRemovePatient",
     type: "POST",
     data: {'rut': rut, 'idHospital': idHospital},
     success: function(){
-      var selection = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
       $.each(hospitals, function(key, hospital){
-        if (hospital.idHospital == selection.idHospital)
+        if (hospital.idHospital == hospitalSelected.idHospital)
         {
           hospitals[key].patients.splice(e.dataset.index,1);
-          selection.patients.splice(e.dataset.index,1);
+          hospitalSelected.patients.splice(e.dataset.index,1);
           selectHospitalCombo.magicSuggest().setData(hospitals);
           
           return false;
@@ -215,13 +217,12 @@ var hospitalsComboRenderer = function(v){
 patientsRutInput.on("keypress", function(e) {
   // Si presiona enter.
   if (e.keyCode == 13) {
-    var hospital = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
     $('#createPatientModal').modal('show');
     return false; // prevent the button click from happening
   }
 });
 
-$( "#createPatientAccept" ).click(function(e) {
+$("#createPatientAccept").click(function(e) {
   var hospitalSelected = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
   $.ajax({
     url: "/doctor/createPatient",
@@ -230,11 +231,12 @@ $( "#createPatientAccept" ).click(function(e) {
            'birthdate': $('.birthdate').val(), 'email': $('.email').val(), 'phone': $('.phone').val(),
            'city': $('.city').val(), 'address': $('.address').val(), 'gender': $('input[name=gender]:checked').val(),
            'idHospital': hospitalSelected.idHospital},
-    success: function($xhr){
+    success: function(xhr){
       patientsRutInput.val('');
       alert('asigno');
-      console.log($xhr);
-      var newPatient = $.parseJSON($xhr);
+      console.log(xhr);
+      var newPatient = $.parseJSON(xhr);
+      
       $.each(hospitals, function(key, hospital){
         if (hospital.idHospital == hospitalSelected.idHospital)
         {
@@ -245,6 +247,7 @@ $( "#createPatientAccept" ).click(function(e) {
           }
           hospitals[key].patients.push(newPatient);
           hospitalSelected.patients.push(newPatient);
+          
           selectHospitalCombo.magicSuggest().setData(hospitals);
           
           return false; // nos salimos antes del bucle each
@@ -271,30 +274,33 @@ $('#createPatientModal').on('shown.bs.modal', function (e) {
 var patientClickedIndex;
 var modifyPatient = function (e){
   patientClickedIndex = dataTable.fnGetPosition(e.parentElement.parentElement);
+  var index1 = indexOfHospitalSelected();
+  var index2 = indexOfPatient(e.dataset.rut);
+  
+  var patient = hospitals[index1].patients[index2];
+  
   $(".rut").prop('disabled', true);
   
   $('.genderMale').prop('checked', false);
   $('.genderFemale').prop('checked', false);
   
   $('#modifyPatientModal').modal('show');
-  console.log(e.dataset);
-  $('.rut').val(e.dataset.rut);
-  $('.name').val(e.dataset.name);
-  $('.lastname').val(e.dataset.lastname);
-  $('.birthdate').val(e.dataset.birthdate);
-  $('.email').val(e.dataset.email);
-  $('.phone').val(e.dataset.phone);
-  $('.city').val(e.dataset.city);
-  $('.address').val(e.dataset.address);
+  $('.rut').val(patient.rutFormated);
+  $('.name').val(patient.name);
+  $('.lastname').val(patient.lastname);
+  $('.birthdate').val(patient.birthdate);
+  $('.email').val(patient.userInfo.email);
+  $('.phone').val(patient.userInfo.phone);
+  $('.city').val(patient.userInfo.city);
+  $('.address').val(patient.userInfo.address);
   
-  if (e.dataset.gender == "male")
+  if (patient.gender == "male")
     $('.genderMale').prop('checked', true);
   else if (e.dataset.gender == "female")
     $('.genderFemale').prop('checked', true)
 }
 
 $( "#modifyPatientAccept" ).click(function(e) {
-  var hospitalSelected = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
   $.ajax({
     url: "/doctor/modifyPatient",
     type: "POST",
@@ -306,24 +312,21 @@ $( "#modifyPatientAccept" ).click(function(e) {
       patientsRutInput.val('');
       alert('asigno');
       console.log($xhr);
-      var newPatient = $.parseJSON($xhr);
-      $.each(hospitals, function(key, hospital){
-        if (hospital.idHospital == hospitalSelected.idHospital)
-        {
-          if (typeof hospitals[key].patients === "undefined")
-          {
-            hospitals[key].patients = [];
-            hospitalSelected.patients = [];
-          }
-          hospitals[key].patients.push(newPatient);
-          hospitalSelected.patients.push(newPatient);
-          selectHospitalCombo.magicSuggest().setData(hospitals);
-          
-          return false; // nos salimos antes del bucle each
-        }
-      });        
+      var modifiedPatient = $.parseJSON($xhr);
+      
+      var key = indexOfHospitalSelected();
+      if (typeof hospitals[key].patients === "undefined")
+      {
+        hospitals[key].patients = [];
+        hospitalSelected.patients = [];
+      }
+      var key2 = indexOfPatient(modifiedPatient.rut);
+      hospitals[key].patients[key2] = modifiedPatient;
+      hospitalSelected.patients[key2] = modifiedPatient;
+      
+      selectHospitalCombo.magicSuggest().setData(hospitals);   
       hospitalsComboSelectionChange();
-      $('#createPatientModal').modal('hide');
+      $('#modifyPatientModal').modal('hide');
     },
     error: function($sss){
       console.log($sss);
@@ -331,3 +334,21 @@ $( "#modifyPatientAccept" ).click(function(e) {
     }
   });
 });
+
+indexOfHospitalSelected = function()
+{
+  temp = $.grep(hospitals, function( n, i ) {
+    return (n.idHospital==hospitalSelected.idHospital);
+  });
+  return key = $.inArray(temp[0], hospitals);
+}
+
+indexOfPatient = function(patientRut)
+{
+  if(typeof patientRut == "string")
+    patientRut = patientRut.split("-")[0].replace(/\./g, '');
+  temp = $.grep(hospitalSelected.patients, function( n, i ) {
+    return (n.rut==patientRut);
+  });
+  return key = $.inArray(temp[0], hospitalSelected.patients);
+}

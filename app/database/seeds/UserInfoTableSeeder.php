@@ -10,21 +10,27 @@ class UserInfoTableSeeder extends Seeder
       'dv' => '3',
       'email' => 'alfredo.gallardo@hotmail.es',
       'phone'     => '90960623',
-      'idHospital' => '1'
+      'idHospital' => '1',
+      'city' => 'Valparaíso',
+      'address' => 'Nueva York 321'
     ));
     UserInfo::create(array(
       'rut' => '17560861',
       'dv' => '3',
       'email' => 'agallard@loscoihues.cl',
       'phone'     => '032223243',
-      'idHospital' => '2'
+      'idHospital' => '2',
+      'city' => 'Valparaíso',
+      'address' => 'Nueva York 321'
     ));
     UserInfo::create(array(
       'rut' => '121212',
       'dv' => '1',
       'email' => 'donUno.Dos@yahoo.com',
       'phone'     => '11221122',
-      'idHospital' => '1'
+      'idHospital' => '1',
+      'city' => 'Quilpue',
+      'address' => 'Nueva Aurora 432'
     ));
     UserInfo::create(array(
       'rut' => '311331',
@@ -38,7 +44,9 @@ class UserInfoTableSeeder extends Seeder
       'dv' => '7',
       'email' => 'asdf@asdf.cl',
       'phone'     => '9898989',
-      'idHospital' => '1'
+      'idHospital' => '1',
+      'city' => 'La Calera',
+      'address' => 'Santa Cosa 982'
     ));
     UserInfo::create(array(
       'rut' => '123123123',
@@ -52,7 +60,9 @@ class UserInfoTableSeeder extends Seeder
       'dv' => '3',
       'email' => 'gatitu_bunitux3@gmail.com',
       'phone'     => '93456528',
-      'idHospital' => '1'
+      'idHospital' => '1',
+      'city' => 'Villa Alemana',
+      'address' => 'Aviador Figueroa 456'
     ));
     UserInfo::create(array(
       'rut' => '7878787',

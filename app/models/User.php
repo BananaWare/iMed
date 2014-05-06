@@ -12,7 +12,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 */
 	protected $table = 'users';
   protected $primaryKey = 'rut';
-  protected $appends = array('rutFormated', 'fullName', 'age');
+  protected $appends = array('rutFormated', 'fullName', 'age', 'isSecretary', 'isDoctor', 'isPatient');
   public $incrementing = false;
 	/**
 	 * The attributes excluded from the model's JSON form.
@@ -106,8 +106,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   
   public function getUserInfoFromHospital($idHospital)
   {
-    return $this->belongsToMany('Hospital', 'users_info', 'rut', 'idHospital')
-      ->where('idHospital', '=', $idHospital);
+    return $this->hasMany('UserInfo', 'rut', 'rut')
+      ->where('idHospital', '=', $idHospital)->first();
   }
   
   public function getRutFormatedAttribute()
@@ -128,6 +128,71 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   {
     $from = new DateTime($this->birthdate);
     $to = new DateTime('today');
-    return $from->diff($to)->y;;
+    return $from->diff($to)->y;
+  }
+  
+  public function getIsSecretaryAttribute()
+  {
+    foreach($this->roles as $rol)
+    {
+      if ($rol->role == "secretary")
+        return true;
+    }
+    return false;
+  }
+  
+  public function getIsDoctorAttribute()
+  {
+    foreach($this->roles as $rol)
+    {
+      if ($rol->role == "doctor")
+        return true;
+    }
+    return false;
+  }
+  
+  public function getIsPatientAttribute()
+  {
+    foreach($this->roles as $rol)
+    {
+      if ($rol->role == "doctor" || $rol->role == "secretary")
+        return true;
+    }
+    return false;
+  }
+  
+  public function isDoctorOn($idHospital)
+  {
+    foreach($this->roles as $rol)
+    {
+      if ($rol->idHospital == $idHospital && $rol->role == "doctor")
+        return true;
+    }
+    return false;
+  }
+  
+  public function isSecretaryOn($idHospital)
+  {
+    foreach($this->roles as $rol)
+    {
+      if ($rol->idHospital == $idHospital && $rol->role == "secretary")
+        return true;
+    }
+    return false;
+  }
+  
+  public function isPatientOn($idHospital)
+  {
+    foreach($this->roles as $rol)
+    {
+      if ($rol->idHospital == $idHospital && $rol->role == "patient")
+        return true;
+    }
+    return false;
+  }
+  
+  public function roles()
+  {
+    return $this->hasMany('UserRole', 'rut');  
   }
 }

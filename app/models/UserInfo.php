@@ -18,4 +18,9 @@ class UserInfo extends Eloquent {
   {
     return $this->belongsTo('user', 'rut');
   }
+  
+  public function roles()
+  {
+    return $this->hasMany('UserRole', 'rut');
+  }
 }

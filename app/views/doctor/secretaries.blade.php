@@ -1,8 +1,10 @@
 @section('extra-css')
-    {{ HTML::style('assets/css/fullcalendar.css') }}
-    {{-- HTML::style('assets/css/fullcalendar.print.css') --}}
-    {{ HTML::style('assets/css/jquery-ui.min.css') }}
-    {{ HTML::style('assets/css/magicsuggest-1.3.1-min.css') }}
+  {{ HTML::style('assets/css/fullcalendar.css') }}
+  {{-- HTML::style('assets/css/fullcalendar.print.css') --}}
+  {{ HTML::style('assets/css/jquery-ui.min.css') }}
+  {{ HTML::style('assets/css/magicsuggest-1.3.1-min.css') }}
+  {{ HTML::style('assets/css/jquery.dataTables.css') }}
+  {{ HTML::style('assets/css/jquery.dataTables_theme.css') }}
 @stop()
 
 @section('section')
@@ -59,9 +61,13 @@
               <!-- .danger si una enfermera esta deshabilitada -->
               <thead align="center">
                 <tr>
-                  <td class="tname">Nombre</td>
-                  <td class="trut">Rut</td>
-                  <td class="tunassign">Deshabilitar</td>
+                  <th class="tname">Nombre</th>
+                  <th class="trut">Rut</th>
+                  <th class="tage">Edad</th>
+                  <th class="temail">Email</th>
+                  <th class="tphone">Teléfono</th>
+                  <th class="tcity">Ciudad</th>
+                  <th class="tunassign">Deshabilitar</th>
                 </tr>
               </thead>
               <tbody align="center">
@@ -81,6 +87,7 @@
 {{ HTML::script('assets/js/fullcalendar.min.js') }}
 {{ HTML::script('assets/js/lang/es.js') }}
 {{ HTML::script('assets/js/magicsuggest-1.3.1-min.js') }}
+{{ HTML::script('assets/js/jquery.dataTables.min.js') }}
 {{ HTML::script('assets/js/secretaries.js') }}
 
 @stop()

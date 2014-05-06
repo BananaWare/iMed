@@ -12,7 +12,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('90960623'),
       'name'     => 'Alfredo',
       'lastname' => 'Gallardo',
-      'role' => 'doctor',
       'gender' => 'male',
       'birthdate' => '1991-12-30'
     ));
@@ -22,7 +21,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('121212'),
       'name'     => 'UnoDos',
       'lastname' => 'DosUno',
-      'role' => 'doctor',
       'gender' => 'female',
       'birthdate' => '1982-11-10'
     ));
@@ -32,7 +30,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('311331'),
       'name'     => 'Marcela',
       'lastname' => 'Serrano',
-      'role' => 'secretary',
       'gender' => 'female',
       'birthdate' => '1972-03-21'
     ));
@@ -42,7 +39,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('123123'),
       'name'     => 'Marco',
       'lastname' => 'Rojas',
-      'role' => 'secretary',
       'gender' => 'male',
       'birthdate' => '1992-05-09'
     ));
@@ -52,7 +48,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('123123'),
       'name'     => 'Elpa',
       'lastname' => 'ciente',
-      'role' => 'patient',
       'gender' => 'male',
       'birthdate' => '1991-03-09'
     ));
@@ -62,7 +57,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('123123'),
       'name'     => 'doña',
       'lastname' => 'pepa',
-      'role' => 'patient',
       'gender' => 'female',
       'birthdate' => '1951-02-21'
     ));
@@ -72,7 +66,6 @@ class UserTableSeeder extends Seeder
       'password' => Hash::make('123123'),
       'name'     => 'don',
       'lastname' => 'ramon',
-      'role' => 'patient',
       'gender' => 'male',
       'birthdate' => '1947-12-25'
     ));

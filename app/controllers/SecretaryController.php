@@ -58,13 +58,22 @@ class SecretaryController extends BaseController {
         ->withInput()
         ->withErrors($doCreateUserValidator);
     
-    
-    $user->role = 'patient';
-   
     $user->save();
     $userInfo->save();
+    if (!User::find($user->rut)->isPatientOn(Input::get('idHospital')))
+    {
+      
+      $role = new UserRole();
+      $role->rut = $user->rut;
+      $role->role = "patient";
+      $role->idHospital = Input::get('idHospital');
+      $role->save();
+      
+    }
     
+    $userInfo->user = null;
     $user['userInfo'] = $userInfo->toArray();
+    
     return $user->toJson();
   }
   
@@ -86,12 +95,17 @@ class SecretaryController extends BaseController {
       return $validator;
     }
     
+    $rutSinPuntos = str_replace(".", "", Input::get('rut'));    
+    list($user->rut, $user->dv) = explode("-", $rutSinPuntos);
+    
+    $userAntiguo = User::find($user->rut);
+    if (isset($userAntiguo))
+      $user = $userAntiguo;
+    
     $setUserWithInputs = $this->setUserWithInputs($user, $userInfo);
     if($setUserWithInputs->fails())
       return $setUserWithInputs;
     
-    $rutSinPuntos = str_replace(".", "", Input::get('rut'));    
-    list($user->rut, $user->dv) = explode("-", $rutSinPuntos);
     $userInfo->rut = $user->rut;
     $userInfo->dv = $user->dv;
     $userInfo->idHospital = Input::get('idHospital');
@@ -114,10 +128,16 @@ class SecretaryController extends BaseController {
     }
     $rutSinPuntos = str_replace(".", "", Input::get('rut'));
     list($rut, $dv) = explode("-", $rutSinPuntos);
-    $user = User::where('rut', '=', $rut)->where('role', '=', 'patient')->first();
+    $user = User::where('rut', '=', $rut)->first();
+    if (!$user->isPatientOn(Input::get('idHospital')))
+        return Redirect::to('/patients')
+        ->withInput()
+        ->withErrors('Pacientes incorrecto.');
+        
     $userInfo = UserInfo::where('rut', '=', $rut)
       ->where('idHospital', '=', Input::get('idHospital'))->first();
-    
+    //echo var_dump($user);
+    //echo $user;return;
     $setUserWithInputsValidator = $this->setUserWithInputs($user, $userInfo);
     if($setUserWithInputsValidator->fails())
     {
@@ -132,6 +152,9 @@ class SecretaryController extends BaseController {
     $user->save();
     $userInfo->save();
     
+    $userInfo->user = null;
+    $user['userInfo'] = $userInfo->toArray();
+    return $user->toJson();
   }
   
   /**
@@ -142,6 +165,8 @@ class SecretaryController extends BaseController {
   */
   protected function setUserWithInputs(&$user, &$userInfo)
   {
+    //   echo var_dump($user->toArray());
+    
     $data = Input::all();
     $rules = array(
       'name' => 'required',
@@ -158,10 +183,10 @@ class SecretaryController extends BaseController {
     if (!$validator->fails()) {
       
       //return false;
-      $rutSinPuntos = str_replace(".", "", Input::get('rut'));
-      list($rut, $dv) = explode("-", $rutSinPuntos);
-      $user = User::find($rut);
-      $userInfo = UserInfo::where('rut', '=', $rut)->where('idHospital', '=', Input::get('idHospital'))->first();
+      //$rutSinPuntos = str_replace(".", "", Input::get('rut'));
+      //list($rut, $dv) = explode("-", $rutSinPuntos);
+      
+      //$userInfo = UserInfo::where('rut', '=', $rut)->where('idHospital', '=', Input::get('idHospital'))->first();
       
       $user->name = Input::get('name');
       $user->lastname = Input::get('lastname');
@@ -272,10 +297,12 @@ class SecretaryController extends BaseController {
     {
       $completeHospital = $hospital->toArray();
       $patientsInfo = $hospital->patientsInfo;
+      
+      
       foreach($patientsInfo as $patientInfo)
       {
-        //var_dump($patientInfo);
         $completePatient = $patientInfo->user->toArray();
+        $patientInfo->user = null;
         $completePatient['userInfo'] = $patientInfo->toArray();
         //$completeSecretary['rutFormated'] = $secretary->rutFormated();
         
