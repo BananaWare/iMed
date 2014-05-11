@@ -1,8 +1,9 @@
-	$(document).ready(function() {
+var selectHospitalCombo;
+$(document).ready(function() {
 
-    console.log(secretary.name);
+    console.log(user.name);
     console.log(hospitals);
-    var selectHospitalCombo = $('#selectHospitalCombo').magicSuggest({
+    selectHospitalCombo = $('#selectHospitalCombo').magicSuggest({
       width: 'auto',
       //sortOrder: 'name',
       //groupBy: 'hospital.city',
@@ -91,27 +92,45 @@ var dayClickEvent = function(date, jsEvent, view) {
 
 var hospitalsComboSelectionChange = function(event, combo, selection){
 
-    var selectDoctorCombo = $('#selectDoctorCombo').magicSuggest({
-      width: 'auto',
-      sortOrder: 'name',
-      groupBy: 'desc',
-      maxSelection: 1,
-        highlight: false,
-        data: selection[0].doctors,
-        renderer: function(v){
-        return '<div>' +
-            '<div style="float:left;"><img src="' + v.image + '"/></div>' +
-            '<div style="padding-left: 85px;">' +
-                '<div style="padding-top: 20px;font-style:bold;font-size:120%;color:#333">' + v.name + ' ' + v.lastname + '</div>' +
-                '<div style="color: #999">' + v.city + '</div>' +
-                '</div>' +
-            '</div><div style="clear:both;"></div>';
-        }
-    });
-    if (selection[0].doctors.length == 1)
-      $('#selectDoctorCombo').magicSuggest().setValue();
-  
+  var selectDoctorCombo = $('#selectDoctorCombo').magicSuggest({
+    width: 'auto',
+    sortOrder: 'name',
+    groupBy: 'desc',
+    maxSelection: 1,
+    highlight: false,
+    data: selection[0].doctors,
+    renderer: function(v){
+      return '<div>' +
+        '<div style="float:left;"><img src="' + v.image + '"/></div>' +
+        '<div style="padding-left: 85px;">' +
+        '<div style="padding-top: 20px;font-style:bold;font-size:120%;color:#333">' + v.name + ' ' + v.lastname + '</div>' +
+        '<div style="color: #999">' + v.city + '</div>' +
+        '</div>' +
+        '</div><div style="clear:both;"></div>';
+    }
+  });
+    
+  if (role == "secretary")
+  {
     $(selectDoctorCombo).on('selectionchange', doctorsComboSelectionChange);
+    if (typeof selection[0].doctors == "undefined")
+    {
+      // TODO
+      /*********** SI UN HOSPITAL NO TIENE DOCTORES OCURREN ERRORES. POR EJEMPLO: SE SELECCIONA PRIMERO UN HOSPITAL CON DOCTORES, LUEGO SE SELECCIONA
+      UN DOCTOR, LUEGO SE SELECCIONA UN HOSPITAL SIN DOCTORES *******/
+      
+      //$(selectDoctorCombo).magicSuggest().empty();
+      
+      //drawCalendar(null, "");
+    }
+    else if (selection[0].doctors.length == 1)
+      $('#selectDoctorCombo').magicSuggest().setValue();
+  }
+  else if (role == "doctor")
+  {
+    var currentDoctor = user;  
+    drawCalendar(null, "") 
+  }
 }
 
 var hospitalsComboSelectionRenderer = function (a){

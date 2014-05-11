@@ -42,6 +42,10 @@ Route::get('/secretary', ['uses' => 'SecretaryController@index', 'before' => 'se
 
 Route::get('/doctor', ['uses' => 'DoctorController@index', 'before' => 'doctor']);
 
+Route::get('/doctor/assignhour', ['uses' => 'DoctorController@showAssignHour', 'before' => 'doctor']);
+
+Route::post('/doctor/assignhour', ['uses' => 'DoctorController@doAssignHour', 'before' => 'doctor']);
+
 Route::get('/secretary/assignhour', ['uses' => 'SecretaryController@showAssignHour', 'before' => 'secretary']);
 
 Route::post('/secretary/assignhour', ['uses' => 'SecretaryController@doAssignHour', 'before' => 'secretary']);
@@ -49,6 +53,8 @@ Route::post('/secretary/assignhour', ['uses' => 'SecretaryController@doAssignHou
 Route::get('/doctor/secretaries', ['uses' => 'DoctorController@showSecretaries', 'before' => 'doctor']);
 
 Route::get('/doctor/patients', ['uses' => 'DoctorController@showPatients', 'before' => 'doctor']);
+
+Route::get('/secretary/patients', ['uses' => 'SecretaryController@showPatients', 'before' => 'secretary']);
 
 Route::get('/patients', ['uses' => function() {
     if(Auth::user()->role == 'doctor')

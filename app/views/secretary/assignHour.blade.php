@@ -24,6 +24,7 @@
     </div>
   </div>
 
+@if ($role == 'secretary')
   <div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -41,6 +42,7 @@
       </div>
     </div>
   </div>
+@endif
   <div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">

@@ -4,6 +4,17 @@ class SecretaryController extends BaseController {
   
   protected $layout = 'layouts.dashboard';
   
+  private $spanishNames = array(
+    'name' => 'nombre',
+    'lastname' => 'apellido',
+    'birthdate' => 'fecha de nacimiento',
+    'gender' => 'género',
+    'phone' => 'teléfono',
+    'city' => 'ciudad',
+    'address' => 'dirección',
+    
+  );
+  
   public function index()
   {
     $this->layout->header = View::make('navbars.homeNavBar');
@@ -13,39 +24,53 @@ class SecretaryController extends BaseController {
   
   public function showAssignHour()
   {
-    $secretary = Auth::user();
-    //$allDoctors = $secretary->doctors;
-    foreach ($secretary->hospitals as $hospital)
+    $user = Auth::user();
+    
+    if (get_class($this) == "SecretaryController")
+      $role = 'secretary';
+    else if (get_class($this) == "DoctorController")
+      $role = 'doctor';
+    
+    foreach ($user->hospitals as $hospital)
     {
       $completeHospital = $hospital->toArray();
       //foreach($allDoctors as $doctor)
-      $doctors = $secretary->getDoctorsFromHospital($hospital->idHospital)->get();
-      
-      foreach($doctors as $doctor)
+      if ($role == 'secretary')
       {
-        //if($doctor->pivot->idHospital == $hospital->idHospital)
-        //{
-        $completeDoctor = $doctor->toArray();
-        $completeDoctor['schedules'] = $doctor->getDoctorsScheduleFromHospital($hospital->idHospital)
-          ->get()->toArray();
-        $completeDoctor['patientsHours'] = $doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital)
-          ->get()->toArray();
-        //$doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, 2, 2014);
-        $completeHospital['doctors'][] = $completeDoctor;
-        //$tempReg['doctors'][] = $completeDoctor;
-        //}
-      };
+        $doctors = $user->getDoctorsFromHospital($hospital->idHospital)->get();
+        
+        foreach($doctors as $doctor)
+        {
+          //if($doctor->pivot->idHospital == $hospital->idHospital)
+          //{
+          $completeDoctor = $doctor->toArray();
+          $completeDoctor['schedules'] = $doctor->getDoctorsScheduleFromHospital($hospital->idHospital)
+            ->get()->toArray();
+          $completeDoctor['patientsHours'] = $doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital)
+            ->get()->toArray();
+          //$doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, 2, 2014);
+          $completeHospital['doctors'][] = $completeDoctor;
+          //$tempReg['doctors'][] = $completeDoctor;
+          //}
+        };
+      }
       $hospitals[] = $completeHospital;
       
     };
     JavaScript::put([
       'hospitals' => $hospitals,
-      'secretary' => $secretary
+      'user' => $user,
+      'role' => $role
     ]);
     
     $this->layout->header = View::make('navbars.dashboardNavBar');
-    $this->layout->function = View::make('dashboard.secretarySidebar');  
-    $this->layout->section = View::make('secretary.assignHour');
+    if ($role == 'secretary')
+      $this->layout->function = View::make('dashboard.secretarySidebar');
+    else if ($role == 'doctor')
+      $this->layout->function = View::make('dashboard.doctorSidebar');
+    
+    $this->layout->section = View::make('secretary.assignHour')->with('role', $role);
+    
   }
   
   public function doCreatePatient()
@@ -54,9 +79,10 @@ class SecretaryController extends BaseController {
     $userInfo = new UserInfo();
     $doCreateUserValidator = $this->doCreateUser($user, $userInfo);
     if($doCreateUserValidator->fails())
-      return Redirect::to('/patients')
+      /*return Redirect::to('/patients')
         ->withInput()
-        ->withErrors($doCreateUserValidator);
+        ->withErrors($doCreateUserValidator);*/
+      return $doCreateUserValidator->messages();
     
     $user->save();
     $userInfo->save();
@@ -89,7 +115,8 @@ class SecretaryController extends BaseController {
     $rules = array(
       'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/')
     );
-    $validator = Validator::make($data, $rules);
+    
+    $validator = Validator::make($data, $rules, array("regex" => "El :attribute no está en el formato correcto."));
     
     if ($validator->fails()) {
       return $validator;
@@ -122,17 +149,16 @@ class SecretaryController extends BaseController {
     $validator = Validator::make($data, $rules);
     
     if ($validator->fails()) {
-      return Redirect::to('/patients')
+      return $validator->messages();
+      /*return Redirect::to('/patients')
         ->withInput()
-        ->withErrors($validator);
+        ->withErrors($validator);*/
     }
     $rutSinPuntos = str_replace(".", "", Input::get('rut'));
     list($rut, $dv) = explode("-", $rutSinPuntos);
     $user = User::where('rut', '=', $rut)->first();
     if (!$user->isPatientOn(Input::get('idHospital')))
-        return Redirect::to('/patients')
-        ->withInput()
-        ->withErrors('Pacientes incorrecto.');
+        return 'Paciente incorrecto.';
         
     $userInfo = UserInfo::where('rut', '=', $rut)
       ->where('idHospital', '=', Input::get('idHospital'))->first();
@@ -141,14 +167,13 @@ class SecretaryController extends BaseController {
     $setUserWithInputsValidator = $this->setUserWithInputs($user, $userInfo);
     if($setUserWithInputsValidator->fails())
     {
-      return Redirect::to('/patients')
+      /*return Redirect::to('/patients')
         ->withInput()
-        ->withErrors($setUserWithInputsValidator);
+        ->withErrors($setUserWithInputsValidator);*/
+      
+      return $setUserWithInputsValidator->messages();
     }
-      /* $asdf = $validator->messages();
-    $qq = $asdf->all();
-      foreach ($qq as $q)
-      echo $qq[0];*/
+    
     $user->save();
     $userInfo->save();
     
@@ -179,14 +204,9 @@ class SecretaryController extends BaseController {
     );
   
     $validator = Validator::make($data, $rules);
+    $validator->setAttributeNames($this->spanishNames);
     
     if (!$validator->fails()) {
-      
-      //return false;
-      //$rutSinPuntos = str_replace(".", "", Input::get('rut'));
-      //list($rut, $dv) = explode("-", $rutSinPuntos);
-      
-      //$userInfo = UserInfo::where('rut', '=', $rut)->where('idHospital', '=', Input::get('idHospital'))->first();
       
       $user->name = Input::get('name');
       $user->lastname = Input::get('lastname');
@@ -315,7 +335,12 @@ class SecretaryController extends BaseController {
     ]);    
     
     $this->layout->header = View::make('navbars.dashboardNavBar');
-    $this->layout->function = View::make('dashboard.doctorSidebar');
-    $this->layout->section = View::make('doctor.patients');
+    
+    if (get_class($this) == "SecretaryController")
+      $this->layout->function = View::make('dashboard.secretarySidebar');
+    else if (get_class($this) == "DoctorController")
+      $this->layout->function = View::make('dashboard.doctorSidebar');
+    
+    $this->layout->section = View::make('secretary.patients');
   }
 }

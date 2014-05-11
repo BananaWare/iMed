@@ -1,10 +1,12 @@
 // Document ready
 var selectHospitalCombo = $('#selectHospitalCombo');
 var patientsRutInput = $('#patientsRutInput');
+var contact = $(".contact-errors");
+var personal = $(".personal-errors");
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
 const PLACEHOLDER_HOSPITAL = 'Ingrese rut de paciente y presione enter. (Ejemplo: 12345678-9 o 12.345.678-9)';
 var dataTable;
-
+var nada;
 $(function() {
   dataTable = $('#patientsTable').dataTable({
     "oLanguage": {
@@ -42,6 +44,7 @@ $(function() {
       selectionRenderer: hospitalsComboSelectionRenderer,
       renderer: hospitalsComboRenderer
     });
+    $('.btn').button();
   
     patientsRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
     patientsRutInput.prop('disabled', true);
@@ -233,28 +236,34 @@ $("#createPatientAccept").click(function(e) {
            'idHospital': hospitalSelected.idHospital},
     success: function(xhr){
       patientsRutInput.val('');
-      alert('asigno');
       console.log(xhr);
-      var newPatient = $.parseJSON(xhr);
-      
-      $.each(hospitals, function(key, hospital){
-        if (hospital.idHospital == hospitalSelected.idHospital)
-        {
-          if (typeof hospitals[key].patients === "undefined")
+      //alert('asigno');
+      try
+      {
+        var newPatient = $.parseJSON(xhr);
+        
+        $.each(hospitals, function(key, hospital){
+          if (hospital.idHospital == hospitalSelected.idHospital)
           {
-            hospitals[key].patients = [];
-            hospitalSelected.patients = [];
+            if (typeof hospitals[key].patients === "undefined")
+            {
+              hospitals[key].patients = [];
+              hospitalSelected.patients = [];
+            }
+            hospitals[key].patients.push(newPatient);
+            hospitalSelected.patients.push(newPatient);
+            
+            selectHospitalCombo.magicSuggest().setData(hospitals);
+            
+            return false; // nos salimos antes del bucle each
           }
-          hospitals[key].patients.push(newPatient);
-          hospitalSelected.patients.push(newPatient);
-          
-          selectHospitalCombo.magicSuggest().setData(hospitals);
-          
-          return false; // nos salimos antes del bucle each
-        }
-      });        
-      hospitalsComboSelectionChange();
-      $('#createPatientModal').modal('hide');
+        });        
+        hospitalsComboSelectionChange();
+        $('#createPatientModal').modal('hide');
+      }
+      catch(err){
+        checkAttributes(xhr);
+      }
     },
     error: function($sss){
       console.log($sss);
@@ -264,11 +273,18 @@ $("#createPatientAccept").click(function(e) {
 });
 
 $('#createPatientModal').on('shown.bs.modal', function (e) {
+  $(".rut").prop('disabled', false);
   $('.rut').val($('#patientsRutInput').val());
   
   $('.name').val(''); $('.lastname').val('');
   $('.birthdate').val(''); $('.email').val(''); $('.phone').val('');
   $('.city').val(''); $('.address').val(''); $('input[name=gender]:checked').removeAttr("checked");
+  $(':input:checked').parent('.btn').removeClass('active');
+  
+  contact.empty();
+  contact.removeClass("alert alert-danger");
+  personal.empty();
+  personal.removeClass("alert alert-danger");
 })
 
 var patientClickedIndex;
@@ -296,8 +312,14 @@ var modifyPatient = function (e){
   
   if (patient.gender == "male")
     $('.genderMale').prop('checked', true);
-  else if (e.dataset.gender == "female")
+  else if (patient.gender == "female")
     $('.genderFemale').prop('checked', true)
+  $(':input:checked').parent('.btn').addClass('active');
+  
+  contact.empty();
+  contact.removeClass("alert alert-danger");
+  personal.empty();
+  personal.removeClass("alert alert-danger");
 }
 
 $( "#modifyPatientAccept" ).click(function(e) {
@@ -310,23 +332,27 @@ $( "#modifyPatientAccept" ).click(function(e) {
            'idHospital': hospitalSelected.idHospital},
     success: function($xhr){
       patientsRutInput.val('');
-      alert('asigno');
-      console.log($xhr);
-      var modifiedPatient = $.parseJSON($xhr);
       
-      var key = indexOfHospitalSelected();
-      if (typeof hospitals[key].patients === "undefined")
-      {
-        hospitals[key].patients = [];
-        hospitalSelected.patients = [];
+      try{
+        var modifiedPatient = $.parseJSON($xhr);
+      
+        var key = indexOfHospitalSelected();
+        if (typeof hospitals[key].patients === "undefined")
+        {
+          hospitals[key].patients = [];
+          hospitalSelected.patients = [];
+        }
+        var key2 = indexOfPatient(modifiedPatient.rut);
+        hospitals[key].patients[key2] = modifiedPatient;
+        hospitalSelected.patients[key2] = modifiedPatient;
+        
+        selectHospitalCombo.magicSuggest().setData(hospitals);   
+        hospitalsComboSelectionChange();
+        $('#modifyPatientModal').modal('hide');
       }
-      var key2 = indexOfPatient(modifiedPatient.rut);
-      hospitals[key].patients[key2] = modifiedPatient;
-      hospitalSelected.patients[key2] = modifiedPatient;
-      
-      selectHospitalCombo.magicSuggest().setData(hospitals);   
-      hospitalsComboSelectionChange();
-      $('#modifyPatientModal').modal('hide');
+      catch(err){
+        checkAttributes($xhr);
+      }
     },
     error: function($sss){
       console.log($sss);
@@ -351,4 +377,39 @@ indexOfPatient = function(patientRut)
     return (n.rut==patientRut);
   });
   return key = $.inArray(temp[0], hospitalSelected.patients);
+}
+
+checkAttributes = function(errors)
+{
+  if (errors.email || errors.phone || errors.city || errors.address)
+    contact.addClass("alert alert-danger");
+  else
+    contact.removeClass("alert alert-danger");
+  if (errors.rut || errors.name || errors.lastname || errors.birthdate || errors.gender)
+    personal.addClass("alert alert-danger");
+  else
+    personal.removeClass("alert alert-danger");
+  
+  contact.empty();
+  personal.empty();
+  
+  if (errors.email)
+    contact.append(errors.email[0] + ". ");
+  if (errors.phone)
+    contact.append(errors.phone[0] + ". ");
+  if (errors.city)
+    contact.append(errors.city[0] + ". ");
+  if (errors.address)
+    contact.append(errors.address[0] + ". ");
+  
+  if (errors.rut)
+    personal.append(errors.rut[0] + ". ");
+  if (errors.name)
+    personal.append(errors.name[0] + ". ");
+  if (errors.lastname)
+    personal.append(errors.lastname[0] + ". ");
+  if (errors.birthdate)
+    personal.append(errors.birthdate[0] + ". ");
+  if (errors.gender)
+    personal.append(errors.gender[0] + ". ");
 }
