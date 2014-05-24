@@ -51,14 +51,14 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		return $this->email;
 	}
   
-  //Secretary function
+  //Secretary's function
   public function getDoctorsFromHospital($idHospital)
   {
     return $this->belongsToMany('User', 'secretaries_doctors', 'secretarysRut', 'doctorsRut')
       ->where('idHospital', '=', $idHospital);    
   }
   
-  //Doctor function
+  //Doctor's function
   public function getSecretariesFromHospital($idHospital)
   {
     return $this->belongsToMany('User', 'secretaries_doctors', 'doctorsRut', 'secretarysRut')
@@ -66,7 +66,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
       ->withPivot(array('active', 'idSecretaryDoctor'));
   }
   
-  //Doctor function
+  //Doctor's function
   public function getDoctorsScheduleFromHospital($idHospital)
   {
     return $this->hasMany('DoctorSchedule', 'doctorsRut', 'rut')->where('idHospital', '=', $idHospital);
@@ -79,17 +79,28 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
    * @param (month) Month to rescue patient's hours. If null assume current month.
    * @param (year) Year to rescue patient's hours. If null assume current year.
   */
-  public function getPatientsHoursFromHospitalToMonth($idHospital, $month = null, $year = null)
+  public function getPatientsHoursFromHospitalToMonth($idHospital, $month, $year)
   {
-    $month = isset($month) ? $month : date("m");
-    $year = isset($year) ? $year : date("Y");
+
     return $this->hasMany('PatientHour', 'doctorsRut', 'rut')->where('idHospital', '=', $idHospital)
       ->where(DB::raw('YEAR(dateTimeAssign)'), '=', $year)->where(DB::raw('MONTH(dateTimeAssign)'), '=', $month);
+  }
+  
+  // Patient's function
+  public function getPatientsHoursFromHospitalToDoctor($idHospital, $doctorsRut)
+  {
+    return $this->hasMany('PatientHour', 'patientsRut', 'rut')->where('idHospital', '=', $idHospital)
+      ->where('doctorsRut', '=', $doctorsRut);
   }
   
   public function getPhoto()
   {
      return $this->hasOne('usersPhoto');
+  }
+  
+  public function patientHours()
+  {
+     return $this->hasMany('PatientHour', 'patientsRut');
   }
   
   public function hospitals()
@@ -194,5 +205,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   public function roles()
   {
     return $this->hasMany('UserRole', 'rut');  
+  }
+  
+  //Patient's function
+  public function getPatientHoursFromHospitalToDoctor($idHospital, $doctorsRut)
+  {
+    return $this->patientHours->filter(function($patientHour) use($idHospital, $doctorsRut){
+      if ($patientHour->idHospital == $idHospital && $patientHour->doctorsRut == $doctorsRut) {
+        return true;
+      }
+    });
   }
 }

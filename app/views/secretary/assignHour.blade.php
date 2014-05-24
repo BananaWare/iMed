@@ -2,10 +2,10 @@
     {{ HTML::style('assets/css/fullcalendar.css') }}
     {{-- HTML::style('assets/css/fullcalendar.print.css') --}}
     {{ HTML::style('assets/css/jquery-ui.min.css') }}
-    {{ HTML::style('assets/css/magicsuggest-1.3.1-min.css') }}
 @stop()
 
 @section('section')
+<!--
   <div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -23,7 +23,7 @@
       </div>
     </div>
   </div>
-
+-->
 @if ($role == 'secretary')
   <div class="row">
     <div class="panel panel-primary">
@@ -54,7 +54,7 @@
         </h4>
       </div>
       <div id="collapseOne" class="panel-collapse collapse in">
-        <div class="panel-body">
+        <div class="panel-body" id="panel-calendar">
           <div id='calendar'></div>
         </div>
       </div>
@@ -69,69 +69,26 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Asignar hora</h4>
+        <h4 class="modal-title" id="myModalLabel">Seleccione paciente o cree uno nuevo para asignar la hora</h4>
       </div>
       <div class="modal-body">
         <!-- Panel group -->
         <div class="panel-group" id="accordion">
-          <div class="panel panel-warning">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                  <span class="glyphicon glyphicon-user"></span>
-                  Selecciona un paciente
-                  <span id="selectPatientStepFeedback" class="glyphicon glyphicon-exclamation-sign pull-right"></span>
-                </a>
-              </h4>
-            </div>
-            <div id="collapseOne" class="panel-collapse collapse in">
-              <div class="panel-body">
-                #Seleccionar paciente
-              </div>
-            </div>
-          </div>
-          <div class="panel panel-warning">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                  <span class="glyphicon glyphicon-user"></span>
-                  Otra etapa
-                  <span id="selectPatientStepFeedback" class="glyphicon glyphicon-exclamation-sign pull-right"></span>
-                </a>
-              </h4>
-            </div>
-            <div id="collapseTwo" class="panel-collapse collapse">
-              <div class="panel-body">
-              #otra etapa
-              </div>
-            </div>
-          </div>
-          <div class="panel panel-warning">
-            <div class="panel-heading">
-              <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                  <span class="glyphicon glyphicon-list-alt "></span>
-                  Añade información extra
-                  <span id="extraInfStepFeedback" class="glyphicon glyphicon-exclamation-sign pull-right pull-right"></span>
-                </a>
-              </h4>
-            </div>
-            <div id="collapseThree" class="panel-collapse collapse">
-              <div class="panel-body">
-              #Añade información extra 
-              </div>
-            </div>
-          </div>
+          <div id="selectPatientCombo"></div>
+          <a id="createPatientButton" class="btn btn-primary navbar-btn pull-right">Crear paciente</a>
+          <input id="startHour" name="startHour" type="hidden">
+          <input id="endHour" name="endHour" type="hidden">
         </div>
       </div>
       <!-- Panels group -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary">Asignar hora</button>
+        <button type="button" class="btn btn-primary" id="assignHourAccept">Asignar hora</button>
       </div>
     </div>
   </div>
 </div>
+@include('common/createPatientModal')
 @stop()
 
 @section('extra-js')
@@ -139,7 +96,6 @@
 {{ HTML::script('assets/js/moment.min.js') }}
 {{ HTML::script('assets/js/fullcalendar.js') }}
 {{ HTML::script('assets/js/lang/es.js') }}
-{{ HTML::script('assets/js/magicsuggest-1.3.1-min.js') }}
 {{ HTML::script('assets/js/assignHour.js') }}
 
 @stop()

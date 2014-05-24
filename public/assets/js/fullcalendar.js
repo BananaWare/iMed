@@ -102,7 +102,8 @@ var defaults = {
     //
   allRowsTimestamp: false,
   hasAxisRange: false,
-  axisRangeSeparator: '-'
+  axisRangeSeparator: '-',
+  onNextOrPrev: undefined
 };
 
 
@@ -916,11 +917,13 @@ function Calendar(element, instanceOptions) {
 	
 	function prev() {
 		renderView(-1);
+    trigger('onNextOrPrev', currentView, currentView);
 	}
 	
 	
 	function next() {
 		renderView(1);
+    trigger('onNextOrPrev',currentView, currentView);    
 	}
 	
 	
@@ -939,6 +942,7 @@ function Calendar(element, instanceOptions) {
 	function today() {
 		date = t.getNow();
 		renderView();
+    trigger('onNextOrPrev', currentView, currentView);
 	}
 	
 	
@@ -1115,6 +1119,7 @@ function Header(calendar, options) {
 							buttonClick = function() {
 								button.removeClass(tm + '-state-hover'); // forget why
 								calendar.changeView(buttonName);
+                calendar.trigger('onNextOrPrev', calendar.getView(), calendar.getView());
 							};
 						}
 						if (buttonClick) {
@@ -4733,10 +4738,11 @@ function AgendaEventRenderer() {
 				event = seg.event;
 				if (seg.contentTop !== undefined && height - seg.contentTop < 10) {
 					// not enough room for title, put it in the time (TODO: maybe make both display:inline instead)
-					eventElement.find('div.fc-event-time')
-						.text(
-							formatDate(event.start, opt('timeFormat')) + ' - ' + event.title
-						);
+          
+          eventElement.find('div.fc-event-time')
+          .text(
+            formatDate(event.start, opt('timeFormat')) + ' - ' + event.title
+          );
 					eventElement.find('div.fc-event-title')
 						.remove();
 				}
@@ -6145,14 +6151,15 @@ function DayEventRenderer() {
 				"'" +
 			">" +
 			"<div class='fc-event-inner'>";
-		if (!event.allDay && segment.isStart) {
+    //Eliminé que se mostrara la hora en los eventos
+		/*if (!event.allDay && segment.isStart) {
 			html +=
 				"<span class='fc-event-time'>" +
 				htmlEscape(
 					formatDate(event.start, opt('timeFormat'))
 				) +
 				"</span>";
-		}
+		}*/
 		html +=
 			"<span class='fc-event-title'>" +
 			htmlEscape(event.title || '') +

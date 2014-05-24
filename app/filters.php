@@ -39,12 +39,12 @@ Route::filter('auth', function()
 
 Route::filter('secretary', function()
 {
-  if (Auth::guest() || !Auth::user()->isSecretary) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
+  if (Auth::guest() || !Auth::user()->isSecretaryOn(Session::get('idHospitalSelected'))) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
 });
 
 Route::filter('doctor', function()
 {
-  if (Auth::guest() || !Auth::user()->isDoctor) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
+  if (Auth::guest() || !Auth::user()->isDoctorOn(Session::get('idHospitalSelected'))) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
 });
 
 Route::filter('auth.basic', function()

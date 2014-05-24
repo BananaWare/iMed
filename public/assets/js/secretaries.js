@@ -1,5 +1,5 @@
 // Document ready
-var selectHospitalCombo = $('#selectHospitalCombo');
+//var selectHospitalCombo = $('#selectHospitalCombo');
 var secretarysRutInput = $('#secretarysRutInput');
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
 const PLACEHOLDER_HOSPITAL = 'Ingrese rut de secretaria y presione enter. (Ejemplo: 12345678-9 o 12.345.678-9)';
@@ -7,6 +7,7 @@ var dataTable;
 
 $(function() {
   //Iniciamos datatable para que pesque los textos inicialmente en español.
+  
   dataTable = $('#secretariesTable').dataTable({
     "oLanguage": {
       "sProcessing":     "Procesando...",
@@ -33,28 +34,23 @@ $(function() {
       "sSortDescending": ": Activar para ordenar la columna de manera descendente"
     }
   }); 
+  //hospitalSelected = hospitals[indexOfHospital($.cookie('idHospitalSelected'))];
+  hospitalSelected = hospitals[indexOfHospital(localStorage.idHospitalSelected)];
   
-  var hospitalMagicSuggest = selectHospitalCombo.magicSuggest({
-    width: 'auto',
-    sortOrder: 'name',
-    groupBy: 'hospital.city',
-    maxSelection: 1,
-    highlight: false,
-    data: hospitals,
-    selectionRenderer: hospitalsComboSelectionRenderer,
-    renderer: hospitalsComboRenderer
-  });
+  //patientsMagicSuggest.clear();
+  loadSecretariesTable();
   
-  secretarysRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
-  secretarysRutInput.prop('disabled', true);
-  
-  $(hospitalMagicSuggest).on('selectionchange', hospitalsComboSelectionChange);
-  
-  if (hospitals.length == 1)
-  {
-    // Establece el unico valor de hospital por defecto.
-    selectHospitalCombo.magicSuggest().setValue();
-  }
+    if (typeof hospitalSelected !== "undefined")
+    {
+      secretarysRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
+      secretarysRutInput.prop('disabled', false);
+    }
+    else
+    {
+      secretarysRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
+      secretarysRutInput.prop('disabled', true);
+      return;
+    }
   
 });
 
@@ -63,10 +59,31 @@ var eventClickEvent = function(calEvent, jsEvent, view) {
         //$('#secretariesModal').modal('show');
 }
 
-var hospitalSelected;
-var hospitalsComboSelectionChange = function(event, combo, selection){
-  hospitalSelected = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
-  dataTable.dataTable().fnDestroy();
+var removeSecretaryDoctor = function (e){
+  var id = e.dataset.idSecretaryDoctor;
+  $.ajax({
+    url: "/dashboard/doctor/unassignSecretary",
+    type: "POST",
+    data: {'idSecretaryDoctor': id},
+    success: function(){
+      var key = indexOfHospitalSelected();
+      var key2 = indexOfSecretary(e.dataset.rut);
+      
+      hospitals[key].secretaries.splice(key2,1);
+      //hospitalSelected.secretaries.splice(key2,1);
+      selectHospitalComboBox.magicSuggest().setData(hospitals);
+      //hospitalsComboSelectionChange();
+      loadSecretariesTable();
+    },
+    error: function(){
+      
+    }
+  });
+}
+var loadSecretariesTable = function (){
+  dataTable.DataTable().clear().draw();
+  dataTable.DataTable().destroy();  
+  
   
   if (undefined === hospitalSelected.secretaries)
     hospitalSelected.secretaries = [];
@@ -156,59 +173,12 @@ var hospitalsComboSelectionChange = function(event, combo, selection){
       "sSortDescending": ": Activar para ordenar la columna de manera descendente"
     }
   });
-    if (typeof hospitalSelected !== "undefined")
-    {
-      secretarysRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
-      secretarysRutInput.prop('disabled', false);
-    }
-    else
-    {
-      secretarysRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
-      secretarysRutInput.prop('disabled', true);
-      return;
-    }
-}
-
-var removeSecretaryDoctor = function (e){
-  var id = e.dataset.idSecretaryDoctor;
-  $.ajax({
-    url: "/unassignSecretary",
-    type: "POST",
-    data: {'idSecretaryDoctor': id},
-    success: function(){
-      var key = indexOfHospitalSelected();
-      var key2 = indexOfSecretary(e.dataset.rut);
-      
-      hospitals[key].secretaries.splice(key2,1);
-      hospitalSelected.secretaries.splice(key2,1);
-      selectHospitalCombo.magicSuggest().setData(hospitals);
-      hospitalsComboSelectionChange();
-    },
-    error: function(){
-      
-    }
-  });
-}
-
-var hospitalsComboSelectionRenderer = function (a){
-  return a.name;
-}
-
-
-var hospitalsComboRenderer = function(v){
-  return '<div>' +
-    '<div style="float:left;"><img src="' + v.image + '"/></div>' +
-    '<div style="padding-left: 85px;">' +
-    '<div style="padding-top: 20px;font-style:bold;font-size:120%;color:#333">' + v.name + '</div>' +
-    '<div style="color: #999">' + v.address + '</div>' +
-    '</div>' +
-    '</div><div style="clear:both;"></div>';
 }
 secretarysRutInput.on("keypress", function(e) {
   // Si presiona enter.
   if (e.keyCode == 13) {
     $.ajax({
-      url: "/assignSecretary",
+      url: "/dashboard/doctor/assignSecretary",
       type: "POST",
       data: {'rut': secretarysRutInput.val(), 'idHospital': hospitalSelected.idHospital},
       success: function(xhr, textStatus, error){
@@ -225,10 +195,11 @@ secretarysRutInput.on("keypress", function(e) {
           hospitalSelected.secretaries = [];
         }
         hospitals[key].secretaries.push(newSecretary);
-        hospitalSelected.secretaries.push(newSecretary);
-        selectHospitalCombo.magicSuggest().setData(hospitals);
+        //hospitalSelected.secretaries.push(newSecretary);
+        selectHospitalComboBox.magicSuggest().setData(hospitals);
         
-        hospitalsComboSelectionChange();
+        //hospitalsComboSelectionChange();
+        loadSecretariesTable();
       },
       error: function(){
         alert('no se pudo agregar la secretaria');

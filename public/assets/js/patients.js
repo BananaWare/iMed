@@ -1,12 +1,11 @@
-// Document ready
-var selectHospitalCombo = $('#selectHospitalCombo');
+//var selectHospitalCombo = $('#selectHospitalCombo');
 var patientsRutInput = $('#patientsRutInput');
-var contact = $(".contact-errors");
-var personal = $(".personal-errors");
+
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
 const PLACEHOLDER_HOSPITAL = 'Ingrese rut de paciente y presione enter. (Ejemplo: 12345678-9 o 12.345.678-9)';
 var dataTable;
-var nada;
+
+// Document ready
 $(function() {
   dataTable = $('#patientsTable').dataTable({
     "oLanguage": {
@@ -34,29 +33,10 @@ $(function() {
       "sSortDescending": ": Activar para ordenar la columna de manera descendente"
     }
   });
-  var hospitalMagicSuggest = selectHospitalCombo.magicSuggest({
-      width: 'auto',
-      sortOrder: 'name',
-      groupBy: 'hospital.city',
-      maxSelection: 1,
-      highlight: false,
-      data: hospitals,
-      selectionRenderer: hospitalsComboSelectionRenderer,
-      renderer: hospitalsComboRenderer
-    });
-    $('.btn').button();
+  //hospitalSelected = hospitals[indexOfHospital($.cookie('idHospitalSelected'))];
+  hospitalSelected = hospitals[indexOfHospital(localStorage.idHospitalSelected)];
   
-    patientsRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
-    patientsRutInput.prop('disabled', true);
-  
-    $(hospitalMagicSuggest).on('selectionchange', hospitalsComboSelectionChange);
-  
-    if (hospitals.length == 1)
-    {
-      // Establece el unico valor de hospital por defecto.
-      selectHospitalCombo.magicSuggest().setValue();
-    }
-  
+  loadPatientsTable();
 });
 
 var eventClickEvent = function(calEvent, jsEvent, view) {
@@ -64,13 +44,54 @@ var eventClickEvent = function(calEvent, jsEvent, view) {
         //$('#secretariesModal').modal('show');
 }
 
-var hospitalSelected;
-var hospitalsComboSelectionChange = function(event, combo, selection){
-  hospitalSelected = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
-  dataTable.dataTable().fnDestroy();
+
+var removePatient = function (e){
+  var rut = e.dataset.rut;
+  var idHospital = hospital.idHospital;
+  $.ajax({
+    url: "/doRemovePatient",
+    type: "POST",
+    data: {'rut': rut, 'idHospital': idHospital},
+    success: function(){
+      $.each(hospitals, function(key, hospital){
+        if (hospital.idHospital == hospital.idHospital)
+        {
+          hospitals[key].patients.splice(e.dataset.index,1);
+          //hospital.patients.splice(e.dataset.index,1);
+          selectHospitalCombo.magicSuggest().setData(hospitals);
+          
+          return false;
+        }
+      });
+      //hospitalsComboSelectionChange();
+      loadPatientsTable();
+    },
+    error: function(){
+      
+    }
+  });
+}
+var loadPatientsTable = function (){
+  dataTable.DataTable().clear().draw();
+  dataTable.DataTable().destroy();  
   
-  if (undefined === hospitalSelected.patients)
-    hospitalSelected.patients = [];
+  if (typeof hospitalSelected !== "undefined")
+  {
+    patientsRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
+    patientsRutInput.prop('disabled', false);
+  }
+  else
+  {
+    patientsRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
+    patientsRutInput.prop('disabled', true);
+    
+    return;
+  }
+  
+  
+  if (undefined === hospital.patients)
+    hospital.patients = [];
+  console.log(hospital.patients);
   dataTable = $('#patientsTable').dataTable({
     "aoColumnDefs": [
       {
@@ -121,14 +142,7 @@ var hospitalsComboSelectionChange = function(event, combo, selection){
       {
         "mData": null,
         "mRender": function ( data, type, row ) {
-          return "<a class='btn btn-warning' data-rut=" + row["rutFormated"] + /*
-            " data-name=" + (row["name"] == null ? "''" : row["name"]) +
-            " data-lastname=" + (row["lastname"] == null ? "''" : row["lastname"]) +
-            " data-gender=" + (row["gender"] == null ? "''" : row["gender"]) +
-            " data-birthdate=" + (row["birthdate"] == null ? "''" : row["birthdate"]) +
-            " data-email=" + (row["userInfo"].email == null ? "''" : row["userInfo"].email) +
-            " data-phone=" + (row["userInfo"].phone == null ? "''" : row["userInfo"].phone) +
-            " data-city=" + (row["userInfo"].city == null ? "''" : row["userInfo"].city) +*/
+          return "<a class='btn btn-warning' data-rut=" + row["rutFormated"] +
             " onclick='modifyPatient(this)'>" +
             "<i class='glyphicon glyphicon-pencil icon-white'></i> Modificar</a>";
         },
@@ -136,7 +150,7 @@ var hospitalsComboSelectionChange = function(event, combo, selection){
       }
     ],
     "sPaginationType": "full_numbers",
-    "aaData": hospitalSelected.patients,
+    "aaData": hospital.patients,
     "oLanguage": {
       "sProcessing":     "Procesando...",
       "sLengthMenu":     "Mostrar _MENU_ registros",
@@ -162,46 +176,10 @@ var hospitalsComboSelectionChange = function(event, combo, selection){
       "sSortDescending": ": Activar para ordenar la columna de manera descendente"
     }
   });
+
+  $('.btn').button();
   
-  if (typeof hospitalSelected !== "undefined")
-  {
-    patientsRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
-    patientsRutInput.prop('disabled', false);
-  }
-  else
-  {
-    patientsRutInput.prop('placeholder', PLACEHOLDER_NO_HOSPITAL);
-    patientsRutInput.prop('disabled', true);
-    return;
-  }
 }
-
-var removePatient = function (e){
-  var rut = e.dataset.rut;
-  var idHospital = hospitalSelected.idHospital;
-  $.ajax({
-    url: "/doRemovePatient",
-    type: "POST",
-    data: {'rut': rut, 'idHospital': idHospital},
-    success: function(){
-      $.each(hospitals, function(key, hospital){
-        if (hospital.idHospital == hospitalSelected.idHospital)
-        {
-          hospitals[key].patients.splice(e.dataset.index,1);
-          hospitalSelected.patients.splice(e.dataset.index,1);
-          selectHospitalCombo.magicSuggest().setData(hospitals);
-          
-          return false;
-        }
-      });
-      hospitalsComboSelectionChange();
-    },
-    error: function(){
-      
-    }
-  });
-}
-
 var hospitalsComboSelectionRenderer = function (a){
   return a.name;
 }
@@ -225,67 +203,12 @@ patientsRutInput.on("keypress", function(e) {
   }
 });
 
+$.getScript('/assets/js/createPatientAccept.js');
+
 $("#createPatientAccept").click(function(e) {
-  var hospitalSelected = selectHospitalCombo.magicSuggest().getSelectedItems()[0];
-  $.ajax({
-    url: "/doctor/createPatient",
-    type: "POST",
-    data: {'rut': $('.rut').val(), 'name': $('.name').val(), 'lastname': $('.lastname').val(),
-           'birthdate': $('.birthdate').val(), 'email': $('.email').val(), 'phone': $('.phone').val(),
-           'city': $('.city').val(), 'address': $('.address').val(), 'gender': $('input[name=gender]:checked').val(),
-           'idHospital': hospitalSelected.idHospital},
-    success: function(xhr){
-      patientsRutInput.val('');
-      console.log(xhr);
-      //alert('asigno');
-      try
-      {
-        var newPatient = $.parseJSON(xhr);
-        
-        $.each(hospitals, function(key, hospital){
-          if (hospital.idHospital == hospitalSelected.idHospital)
-          {
-            if (typeof hospitals[key].patients === "undefined")
-            {
-              hospitals[key].patients = [];
-              hospitalSelected.patients = [];
-            }
-            hospitals[key].patients.push(newPatient);
-            hospitalSelected.patients.push(newPatient);
-            
-            selectHospitalCombo.magicSuggest().setData(hospitals);
-            
-            return false; // nos salimos antes del bucle each
-          }
-        });        
-        hospitalsComboSelectionChange();
-        $('#createPatientModal').modal('hide');
-      }
-      catch(err){
-        checkAttributes(xhr);
-      }
-    },
-    error: function($sss){
-      console.log($sss);
-      alert('error');
-    }
-  });
+  createPatient(true);
 });
 
-$('#createPatientModal').on('shown.bs.modal', function (e) {
-  $(".rut").prop('disabled', false);
-  $('.rut').val($('#patientsRutInput').val());
-  
-  $('.name').val(''); $('.lastname').val('');
-  $('.birthdate').val(''); $('.email').val(''); $('.phone').val('');
-  $('.city').val(''); $('.address').val(''); $('input[name=gender]:checked').removeAttr("checked");
-  $(':input:checked').parent('.btn').removeClass('active');
-  
-  contact.empty();
-  contact.removeClass("alert alert-danger");
-  personal.empty();
-  personal.removeClass("alert alert-danger");
-})
 
 var patientClickedIndex;
 var modifyPatient = function (e){
@@ -324,12 +247,12 @@ var modifyPatient = function (e){
 
 $( "#modifyPatientAccept" ).click(function(e) {
   $.ajax({
-    url: "/doctor/modifyPatient",
+    url: "/dashboard/doctor/modifyPatient",
     type: "POST",
     data: {'rut': $('.rut')[1].value, 'name': $('.name')[1].value, 'lastname': $('.lastname')[1].value,
            'birthdate': $('.birthdate')[1].value, 'email': $('.email')[1].value, 'phone': $('.phone')[1].value,
-           'city': $('.city')[1].value, 'address': $('.address')[1].value, 'gender': $('input[name=gender]:checked').val(),
-           'idHospital': hospitalSelected.idHospital},
+           'city': $('.city')[1].value, 'address': $('.address')[1].value, 'gender': 
+           $('input[name=gender]:checked').val(), 'idHospital': hospital.idHospital},
     success: function($xhr){
       patientsRutInput.val('');
       
@@ -340,14 +263,15 @@ $( "#modifyPatientAccept" ).click(function(e) {
         if (typeof hospitals[key].patients === "undefined")
         {
           hospitals[key].patients = [];
-          hospitalSelected.patients = [];
+          hospital.patients = [];
         }
         var key2 = indexOfPatient(modifiedPatient.rut);
         hospitals[key].patients[key2] = modifiedPatient;
-        hospitalSelected.patients[key2] = modifiedPatient;
+        //hospital.patients[key2] = modifiedPatient;
         
-        selectHospitalCombo.magicSuggest().setData(hospitals);   
-        hospitalsComboSelectionChange();
+        selectHospitalComboBox.magicSuggest().setData(hospitals);   
+        //hospitalsComboSelectionChange();
+        loadPatientsTable();
         $('#modifyPatientModal').modal('hide');
       }
       catch(err){
@@ -364,7 +288,7 @@ $( "#modifyPatientAccept" ).click(function(e) {
 indexOfHospitalSelected = function()
 {
   temp = $.grep(hospitals, function( n, i ) {
-    return (n.idHospital==hospitalSelected.idHospital);
+    return (n.idHospital==hospital.idHospital);
   });
   return key = $.inArray(temp[0], hospitals);
 }
@@ -373,43 +297,8 @@ indexOfPatient = function(patientRut)
 {
   if(typeof patientRut == "string")
     patientRut = patientRut.split("-")[0].replace(/\./g, '');
-  temp = $.grep(hospitalSelected.patients, function( n, i ) {
+  temp = $.grep(hospital.patients, function( n, i ) {
     return (n.rut==patientRut);
   });
-  return key = $.inArray(temp[0], hospitalSelected.patients);
-}
-
-checkAttributes = function(errors)
-{
-  if (errors.email || errors.phone || errors.city || errors.address)
-    contact.addClass("alert alert-danger");
-  else
-    contact.removeClass("alert alert-danger");
-  if (errors.rut || errors.name || errors.lastname || errors.birthdate || errors.gender)
-    personal.addClass("alert alert-danger");
-  else
-    personal.removeClass("alert alert-danger");
-  
-  contact.empty();
-  personal.empty();
-  
-  if (errors.email)
-    contact.append(errors.email[0] + ". ");
-  if (errors.phone)
-    contact.append(errors.phone[0] + ". ");
-  if (errors.city)
-    contact.append(errors.city[0] + ". ");
-  if (errors.address)
-    contact.append(errors.address[0] + ". ");
-  
-  if (errors.rut)
-    personal.append(errors.rut[0] + ". ");
-  if (errors.name)
-    personal.append(errors.name[0] + ". ");
-  if (errors.lastname)
-    personal.append(errors.lastname[0] + ". ");
-  if (errors.birthdate)
-    personal.append(errors.birthdate[0] + ". ");
-  if (errors.gender)
-    personal.append(errors.gender[0] + ". ");
+  return key = $.inArray(temp[0], hospital.patients);
 }

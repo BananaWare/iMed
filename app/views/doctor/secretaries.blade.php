@@ -1,13 +1,11 @@
 @section('extra-css')
   {{ HTML::style('assets/css/fullcalendar.css') }}
-  {{-- HTML::style('assets/css/fullcalendar.print.css') --}}
-  {{ HTML::style('assets/css/jquery-ui.min.css') }}
-  {{ HTML::style('assets/css/magicsuggest-1.3.1-min.css') }}
-  {{ HTML::style('assets/css/jquery.dataTables.css') }}
-  {{ HTML::style('assets/css/jquery.dataTables_theme.css') }}
+  {{ HTML::style('assets/css/customTables.css') }}
+  {{ HTML::style('assets/css/dataTables.bootstrap.css') }}
 @stop()
 
 @section('section')
+<!--
     <div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -25,7 +23,7 @@
       </div>
     </div>
   </div>
-
+-->
 <div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -56,8 +54,8 @@
       </div>
       <div id="collapseOne" class="panel-collapse collapse in">
         <div class="panel-body">
-          <div class="table-responsive">
-            <table class="table table-striped table-hover" id="secretariesTable">
+          <div id="table-responsive" class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="secretariesTable">
               <!-- .danger si una enfermera esta deshabilitada -->
               <thead align="center">
                 <tr>
@@ -67,7 +65,7 @@
                   <th class="temail">Email</th>
                   <th class="tphone">Teléfono</th>
                   <th class="tcity">Ciudad</th>
-                  <th class="tunassign">Deshabilitar</th>
+                  <th class="tunassign">Quitar secretaria</th>
                 </tr>
               </thead>
               <tbody align="center">
@@ -82,12 +80,11 @@
 @stop()
 
 @section('extra-js')
-{{ HTML::script('assets/js/jquery-ui.custom.min.js') }}
 {{ HTML::script('assets/js/moment.min.js') }}
 {{ HTML::script('assets/js/fullcalendar.min.js') }}
 {{ HTML::script('assets/js/lang/es.js') }}
-{{ HTML::script('assets/js/magicsuggest-1.3.1-min.js') }}
 {{ HTML::script('assets/js/jquery.dataTables.min.js') }}
+{{ HTML::script('assets/js/dataTables.bootstrap.js') }}
 {{ HTML::script('assets/js/secretaries.js') }}
 
 @stop()

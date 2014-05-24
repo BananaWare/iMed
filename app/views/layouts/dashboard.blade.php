@@ -7,8 +7,9 @@
     {{ HTML::style('assets/css/bootstrap.min.css') }}
 
     {{ HTML::style('assets/css/dashboard.css') }}
-    {{ HTML::style('assets/css/navBar.css') }}
     {{ HTML::style('assets/css/offcanvas.css') }}
+    {{ HTML::style('assets/css/magicsuggest-min.css') }}
+    {{ HTML::style('assets/css/navbar.css') }}
   
     @yield('extra-css')
     <!--[if lt IE 9]>
@@ -18,7 +19,7 @@
 </head>
 <body>
 
-  @yield('header')
+  @include('navbars.navBar')
   @yield('modal')
   <div class="container">
     <div class="row row-offcanvas row-offcanvas-left">
@@ -42,10 +43,16 @@
 
 <!-- scripts -->
 {{ HTML::script('assets/js/jquery-1.11.0.min.js') }}
+{{ HTML::script('assets/js/jquery.cookie.js') }}
 {{ HTML::script('assets/js/bootstrap.min.js') }}
 {{ HTML::script('assets/js/offcanvas.js') }}
+{{ HTML::script('assets/js/spin.min.js') }}
+{{ HTML::script('assets/js/magicsuggest-min.js') }}
+  <!-- arriba o abjo?-->
+{{ HTML::script('assets/js/hospitalLoadings.js') }}
 <script src="/assets/js/docs.min.js"></script>
 @yield('extra-js')
+  
 <!-- scripts -->  
 </body>
 </html>

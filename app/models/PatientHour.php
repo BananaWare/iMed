@@ -27,4 +27,9 @@ class PatientHour extends Eloquent {
   {
     return $this->belongsTo('User', 'patientsRut', 'rut');
   }
+  
+  public function medicalSheet()
+  {
+    return $this->hasOne('MedicalSheet', 'idSheet', 'idSheet'); 
+  }
 }

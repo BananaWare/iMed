@@ -6,7 +6,10 @@ class DoctorController extends SecretaryController {
   
   public function index()
   {
-    $this->layout->header = View::make('navbars.homeNavBar');
+    JavaScript::put([
+      'hospitals' => Auth::user()->hospitals
+    ]);
+    
     $this->layout->function = View::make('dashboard.doctorSidebar');
   }
   public function doUnassignSecretary()
@@ -152,8 +155,18 @@ class DoctorController extends SecretaryController {
       'hospitals' => $tempReg['hospitals']
     ]);    
     
-    $this->layout->header = View::make('navbars.dashboardNavBar');
     $this->layout->function = View::make('dashboard.doctorSidebar');  
     $this->layout->section = View::make('doctor.secretaries'); 
+  }
+  public function showPrescriptions()
+  {
+    //$tempReg = $this->getHospitalsWithPatientsFull(true);;
+    JavaScript::put([
+      'hospital' => $this->getPatientsFullFromHospitalSelected(true, Auth::user()->rut)
+    ]);
+    
+    $this->layout->function = View::make('dashboard.doctorSidebar');  
+    $this->layout->section = View::make('doctor.prescriptions');  
+    //var_dump($tempReg['hospitals'][0]['patients']['1']['patientHours']['0']['medicalSheet']);
   }
 }

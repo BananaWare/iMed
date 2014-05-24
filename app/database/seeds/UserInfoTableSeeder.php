@@ -53,7 +53,8 @@ class UserInfoTableSeeder extends Seeder
       'dv' => '1',
       'email' => 'qwer@qwer.com',
       'phone'     => '3131313',
-      'idHospital' => '1'
+      'idHospital' => '1',
+      'idMedicalHistory' => '1'
     ));
     UserInfo::create(array(
       'rut' => '321321321',

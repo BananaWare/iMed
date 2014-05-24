@@ -23,7 +23,7 @@ class Hospital extends Eloquent {
     return $this->belongsTo('User', 'assignersRut', 'rut');
   }
   */
-  public function patientsInfo()
+  public function patientsInfos()
   {
     return $this->belongsToMany('UserInfo', 'users_roles', 'idHospital', 'rut')->where('users_roles.role', '=', 'patient')
       ->where('users_info.idHospital', '=', $this->idHospital);

@@ -33,12 +33,19 @@ class AuthController extends BaseController {
         // Validamos los datos y además mandamos como un segundo parámetro la opción de recordar el usuario.
         if(Auth::attempt($userdata))
         {
-            // De ser datos válidos nos mandara a la bienvenida
-            return Redirect::to('/');
+          // Si se había logeado previamente otro usuario o nadie, entonces se actualizan datos de usuario
+          // logeado y hospital seleccionado.
+          if (Session::get('rutLogged') == null || Session::get('rutLogged') != Auth::user()->rut)
+          {
+            Session::set('rutLogged', Auth::user()->rut);
+            Session::set('idHospitalSelected', Auth::user()->hospitals[0]->idHospital);
+          }
+          // De ser datos válidos nos mandara a la bienvenida
+          return Redirect::to('/dashboard');
         }
         // En caso de que la autenticación haya fallado manda un mensaje al formulario de login y también regresamos los valores enviados con withInput().
         
-      return Redirect::to('signin')
+      return Redirect::to('/')
         ->with('error_message', 'RUT y/o contraseña incorrecta')
                     ->withInput();
     }
@@ -46,7 +53,7 @@ class AuthController extends BaseController {
     public function doLogOut()
     {
         Auth::logout();
-        return Redirect::to('/signin')
+        return Redirect::to('/')
                     ->with('error_message', 'Tu sesión ha sido cerrada.');
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 class SecretaryController extends BaseController {
   
   protected $layout = 'layouts.dashboard';
@@ -17,12 +16,14 @@ class SecretaryController extends BaseController {
   
   public function index()
   {
-    $this->layout->header = View::make('navbars.homeNavBar');
+    JavaScript::put([
+      'hospitals' => Auth::user()->hospitals
+    ]);
+    
     $this->layout->function = View::make('dashboard.secretarySidebar');
-    //$this->layout->function = View::make('dasb');
   }
   
-  public function showAssignHour()
+  public function showAssignHourFromHospitalSelected()
   {
     $user = Auth::user();
     
@@ -30,15 +31,16 @@ class SecretaryController extends BaseController {
       $role = 'secretary';
     else if (get_class($this) == "DoctorController")
       $role = 'doctor';
-    
-    foreach ($user->hospitals as $hospital)
+      
+    $hospital = $user->hospitals->find(Session::get('idHospitalSelected'));
+    if ($hospital !== null)
     {
       $completeHospital = $hospital->toArray();
       //foreach($allDoctors as $doctor)
       if ($role == 'secretary')
       {
+        // Get secretary's doctors
         $doctors = $user->getDoctorsFromHospital($hospital->idHospital)->get();
-        
         foreach($doctors as $doctor)
         {
           //if($doctor->pivot->idHospital == $hospital->idHospital)
@@ -46,24 +48,49 @@ class SecretaryController extends BaseController {
           $completeDoctor = $doctor->toArray();
           $completeDoctor['schedules'] = $doctor->getDoctorsScheduleFromHospital($hospital->idHospital)
             ->get()->toArray();
-          $completeDoctor['patientsHours'] = $doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital)
-            ->get()->toArray();
+          
+          $month =  date("m");
+          $year = date("Y");
+          $completeDoctor['patientsHours'] = array();
+          for ( $i = $month - 1 ; $i <= $month + 1 ; $i ++) {
+            $temp = $doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $i, $year)
+                                        ->get()->toArray();
+
+            $completeDoctor['patientsHours'] = array_merge($completeDoctor['patientsHours'],$temp);
+
+          }
+
           //$doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, 2, 2014);
           $completeHospital['doctors'][] = $completeDoctor;
           //$tempReg['doctors'][] = $completeDoctor;
           //}
         };
       }
-      $hospitals[] = $completeHospital;
-      
+      else if ($role == 'doctor')
+      {
+        $user['schedules'] = Auth::user()->getDoctorsScheduleFromHospital($hospital->idHospital)
+          ->get()->toArray();
+        $month =  date("m");
+        $year = date("Y");
+        $user['patientsHours'] = array();
+        for ( $i = $month - 1 ; $i <= $month + 1 ; $i++) {
+          $temp = Auth::user()->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $i, $year)
+            ->get()->toArray();
+
+          $user['patientsHours'] = array_merge($user['patientsHours'], $temp);
+        }
+      }
+      //$completeHospital;      
     };
+    
+    $hospitalWithPatients =  $this->getPatientsFullFromHospitalSelected(false);
     JavaScript::put([
-      'hospitals' => $hospitals,
+      'hospital' => $completeHospital,
+      'hospitalWithPatients' => $hospitalWithPatients,
       'user' => $user,
       'role' => $role
     ]);
     
-    $this->layout->header = View::make('navbars.dashboardNavBar');
     if ($role == 'secretary')
       $this->layout->function = View::make('dashboard.secretarySidebar');
     else if ($role == 'doctor')
@@ -146,6 +173,7 @@ class SecretaryController extends BaseController {
       'rut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/')
     );
     
+    
     $validator = Validator::make($data, $rules);
     
     if ($validator->fails()) {
@@ -216,6 +244,7 @@ class SecretaryController extends BaseController {
       $userInfo->email = Input::get('email') == '' ? null : Input::get('email');
       $userInfo->phone = Input::get('phone') == '' ? null : Input::get('phone');
       $userInfo->city = Input::get('city') == '' ? null : Input::get('city');
+      $userInfo->address = Input::get('address') == '' ? null : Input::get('address');
     }
     return $validator;
   }
@@ -245,25 +274,33 @@ class SecretaryController extends BaseController {
   {
     $data = Input::all();
     $rules = array(
-      'doctorsRut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/'),
-      'patientsRut' => array('required', 'regex:/^(\.|\d)+-(k|K|\d)$/'),
-      'dateTimeAssignRut' => 'required|date'
+      'doctorsRut' => 'required|numeric',
+      'patientsRut' => 'required|numeric',
+      'dateTimeAssign' => 'required|date',
+      'dateTimeEnd' => 'required|date'
     );
   
     $validator = Validator::make($data, $rules);
     
     if ($validator->fails()) {
-      return Redirect::to('/patients');
+        return $validator->messages();
+        //return Redirect::to('/patients');
     }
+    $startHour = new DateTime(Input::get('dateTimeAssign'));
+    $endHour = new DateTime(Input::get('dateTimeEnd'));
     
     $patientHour = new PatientHour();
     $patientHour->doctorsRut = Input::get('doctorsRut');
+    $patientHour->idHospital = Input::get('idHospital');
     $patientHour->assignersRut = Auth::user()->rut;
     $patientHour->patientsRut = Input::get('patientsRut');
-    $patientHour->dateTimeAssing = Input::get('dateTimeAssing');
+    $patientHour->dateTimeAssign = $startHour;
+    $patientHour->dateTimeEnd = $endHour;
     $patientHour->reason = Input::get('reason');
     $patientHour->confirmed = Input::get('confirmed');    
     $patientHour->save();
+    
+    return $patientHour->toJson();
   }
   
   public function revokeHour()
@@ -302,39 +339,17 @@ class SecretaryController extends BaseController {
     $rutSinPuntos = str_replace(".", "", Input::get('rut'));
     list($rut, $dv) = explode("-", $rutSinPuntos);
     
-    //TODO: cambiar el numero de idHospital.
     $user = User::find($rut);
     $userInfo = UserInfo::where('role', '=', 'patient')->where('rut', '=', $rut)
-      ->where('idHospital', '=', 1)->first();
+      ->where('idHospital', '=', Input::get('idHospital'))->first();
   }
   
   public function showPatients()
   {
-    $doctor = Auth::user(); 
-    $hospitals = $doctor->hospitals;
-    
-    foreach($hospitals as $hospital)
-    {
-      $completeHospital = $hospital->toArray();
-      $patientsInfo = $hospital->patientsInfo;
-      
-      
-      foreach($patientsInfo as $patientInfo)
-      {
-        $completePatient = $patientInfo->user->toArray();
-        $patientInfo->user = null;
-        $completePatient['userInfo'] = $patientInfo->toArray();
-        //$completeSecretary['rutFormated'] = $secretary->rutFormated();
-        
-        $completeHospital['patients'][] = $completePatient;
-      }
-      $tempReg['hospitals'][] = $completeHospital; 
-    }
     JavaScript::put([
-      'hospitals' => $tempReg['hospitals']
+      'hospital' => $this->getPatientsFullFromHospitalSelected(false)
     ]);    
     
-    $this->layout->header = View::make('navbars.dashboardNavBar');
     
     if (get_class($this) == "SecretaryController")
       $this->layout->function = View::make('dashboard.secretarySidebar');
@@ -342,5 +357,179 @@ class SecretaryController extends BaseController {
       $this->layout->function = View::make('dashboard.doctorSidebar');
     
     $this->layout->section = View::make('secretary.patients');
+  }
+  
+  public function doGetPatientsFromHospitalSelected()
+  {
+    return getPatientsFullFromHospitalSelected(false);
+  }
+  /*
+  protected function getHospitalWithPatientsFull($withPrescriptions)
+  {
+    $doctor = Auth::user();
+    $hospitals = $doctor->hospitals;
+    
+    foreach($hospitals as $hospital)
+    {
+      $completeHospital = $hospital->toArray();
+      foreach($hospital->patientsInfos as $patientInfo)
+      {
+        $completePatient = $patientInfo->user->toArray();
+        // Rellenamos con los siguientes datos solo si se solicitó por parametro que se rellenaran
+        if ($withPrescriptions)
+        {
+          $pHs = null;
+          foreach($patientInfo->user->patientHours as $patientHour)
+          {
+            $pH = $patientHour->toArray();
+            $pH['medicalSheet'] = null;
+            if ($patientHour->medicalSheet != null)
+            {
+              
+              $pH['medicalSheet'] = $patientHour->medicalSheet->toArray();
+              if ($patientHour->medicalSheet->prescription != null)
+              {
+                $prescription = $patientHour->medicalSheet->prescription;
+                $p = $prescription->toArray();
+                if ($prescription->drugs != null)
+                {
+                  foreach($prescription->drugs as $drug)
+                  {
+                    //$dP = $drug->toArray();
+                    $d = $drug->toArray();
+                    $p['drugs'][] = $d;
+                  }
+                }
+                else 
+                  $p['drugs'] = null;
+              }
+              else 
+                $p = null;
+              $pH['prescription'] = $p;
+            }
+            else
+              $pH['prescription'] = null;
+            $pHs[] = $pH;
+          }
+          $completePatient['patientHours'] = $pHs;
+        }
+        
+        $completePatient['userInfo'] = $patientInfo->toArray();
+        unset($completePatient['userInfo']['user']);
+        
+        if ($patientInfo->medicalHistory != null)
+          $completePatient['userInfo']['medicalHistory'] = $patientInfo->medicalHistory->toArray();
+        else
+          $completePatient['userInfo']['medicalHistory'] = null;
+        $completeHospital['patients'][] = $completePatient;
+      }
+      $tempReg['hospitals'][] = $completeHospital; 
+    }
+    return $tempReg;
+  }
+*/  
+  protected function getPatientsFullFromHospitalSelected($withPrescriptions, $doctorsRut = null)
+  {
+    $hospital = Hospital::find(Session::get('idHospitalSelected'));
+    $completeHospital = $hospital->toArray();
+    
+    foreach($hospital->patientsInfos as $patientInfo)
+    {
+      $completePatient = $patientInfo->user->toArray();
+      // Rellenamos con los siguientes datos solo si se solicitó por parametro que se rellenaran
+      if ($withPrescriptions)
+      {
+        $pHs = null;
+        if ($doctorsRut === null)
+          continue;
+        $patientHours = $patientInfo->user->getPatientHoursFromHospitalToDoctor(Session::get('idHospitalSelected'), $doctorsRut);
+        foreach($patientHours as $patientHour)
+        {
+          $pH = $patientHour->toArray();
+          $pH['medicalSheet'] = null;
+          if ($patientHour->medicalSheet != null)
+          {
+
+            $pH['medicalSheet'] = $patientHour->medicalSheet->toArray();
+            if ($patientHour->medicalSheet->prescription != null)
+            {
+              $prescription = $patientHour->medicalSheet->prescription;
+              $p = $prescription->toArray();
+              if ($prescription->drugs != null)
+              {
+                foreach($prescription->drugs as $drug)
+                {
+                  //$dP = $drug->toArray();
+                  $d = $drug->toArray();
+                  $p['drugs'][] = $d;
+                }
+              }
+              else 
+                $p['drugs'] = null;
+            }
+            else 
+              $p = null;
+            $pH['prescription'] = $p;
+          }
+          else
+            $pH['prescription'] = null;
+          $pHs[] = $pH;
+        }
+        $completePatient['patientHours'] = $pHs;
+      }
+
+      $completePatient['userInfo'] = $patientInfo->toArray();
+      unset($completePatient['userInfo']['user']);
+
+      if ($patientInfo->medicalHistory != null)
+        $completePatient['userInfo']['medicalHistory'] = $patientInfo->medicalHistory->toArray();
+      else
+        $completePatient['userInfo']['medicalHistory'] = null;
+      $completeHospital['patients'][] = $completePatient;
+    }
+    return $completeHospital;
+  }
+  
+  //Obtengo las horas pedidas para un doctor en un hospital determinado y en los meses enviados por post
+  public function doRefreshHoursForCalendar()
+  {
+    $user = Auth::user();
+    $idHospital = Input::get('idHospital');
+    $idDoctor = Input::get('rut');
+    $months = Input::get('months');
+    $year = Input::get('year');
+    $hours = array();
+    if (get_class($this) == "SecretaryController")
+      $role = 'secretary';
+    else if (get_class($this) == "DoctorController")
+      $role = 'doctor';
+
+    foreach ($user->hospitals as $hospital)
+    {
+      if($hospital->idHospital == $idHospital)
+      {
+
+        if ($role == 'secretary')
+        {
+          $doctors = $user->getDoctorsFromHospital($hospital->idHospital)->get();
+
+          foreach($doctors as $doctor)
+          {
+            if($doctor->rut == $idDoctor)
+            {
+              foreach($months as $key => $month)
+              {
+
+                $temp = $doctor->getPatientsHoursFromHospitalToMonth($idHospital, $month, $year)
+                ->get()->toArray();
+
+                $hours = array_merge($hours, $temp);
+              };
+            }
+          };
+        }
+      }
+    };
+    return $hours;
   }
 }

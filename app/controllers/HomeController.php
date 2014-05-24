@@ -17,8 +17,20 @@ class HomeController extends BaseController {
   protected $layout = 'layouts.default';
 	public function index()
 	{
-        $this->layout->header = View::make('navbars.homeNavBar');
-        $this->layout->content = View::make('home.index');
+    if (Auth::user() !== null)
+      JavaScript::put([
+        'hospitals' => Auth::user()->hospitals
+      ]);
+    
+    /*
+    if (Session::get('idHospitalSelected') == null)
+    {
+      Session::set('idHospitalSelected', Auth::user()->hospitals[0])->idHospital;
+    }
+    */
+    
+    
+    
+    $this->layout->content = View::make('home.index');
 	}
-
 }

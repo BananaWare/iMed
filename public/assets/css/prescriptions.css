@@ -1,0 +1,12 @@
+.modal-body > .panel-group 
+{
+  width: 50%;
+}
+.modal-body
+{
+  display: flex;
+}
+.modal-dialog
+{
+  width: 80%;
+}+

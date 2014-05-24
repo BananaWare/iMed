@@ -10,8 +10,6 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
-//Pagina solo para testeo.
-Route::get('/test', [function() { return View::make('test'); } ]);
 
 //Pagina principal donde está el formulario de identificación
 Route::get('/', ['uses' => 'HomeController@index']);
@@ -23,62 +21,98 @@ Route::post('/signin', ['uses' => 'AuthController@doLogin', 'before' => 'guest']
 Route::get('/logout', ['uses' => 'AuthController@doLogOut', 'before' => 'auth']);
 
 Route::get('/dashboard', ['uses' => function() {
+  if (Session::get('idHospitalSelected') !== null)
+    $idHospitalSelected = Session::get('idHospitalSelected');
+  else
+    $idHospitalSelected = Auth::user()->hospitals[0]->idHospital;
   
-    if(Auth::user()->isDoctor)
+    if(Auth::user()->isDoctorOn($idHospitalSelected))
     {
-      return Redirect::to('/doctor'); 
+      return Redirect::to('/dashboard/doctor'); 
     }
-    else if(Auth::user()->isSecretary == 'secretary')
+    else if(Auth::user()->isSecretaryOn($idHospitalSelected))
     {
-      return Redirect::to('/secretary'); 
+      return Redirect::to('/dashboard/secretary'); 
     }
-    else if(Auth::user()->role == 'patient')
+    else if(Auth::user()->isPatientOn($idHospitalSelected))
     {
-      return Redirect::to('/patient'); 
+      return Redirect::to('/dashboard/patient'); 
     }
-  }, 'before' => 'auth']);
+  }]);
 
-Route::get('/secretary', ['uses' => 'SecretaryController@index', 'before' => 'secretary']);
+Route::get('/dashboard/getHospitals', ['uses' => 'BaseController@getHospitals']);
 
-Route::get('/doctor', ['uses' => 'DoctorController@index', 'before' => 'doctor']);
+Route::get('/dashboard/secretary', ['uses' => 'SecretaryController@index', 'before' => 'secretary']);
 
-Route::get('/doctor/assignhour', ['uses' => 'DoctorController@showAssignHour', 'before' => 'doctor']);
+Route::get('/dashboard/doctor', ['uses' => 'DoctorController@index', 'before' => 'doctor']);
 
-Route::post('/doctor/assignhour', ['uses' => 'DoctorController@doAssignHour', 'before' => 'doctor']);
+Route::get('/dashboard/doctor/assignHour', ['uses' => 'DoctorController@showAssignHourFromHospitalSelected', 'before' => 'doctor']);
 
-Route::get('/secretary/assignhour', ['uses' => 'SecretaryController@showAssignHour', 'before' => 'secretary']);
+Route::post('/dashboard/doctor/assignHour', ['uses' => 'DoctorController@doAssignHour', 'before' => 'doctor']);
 
-Route::post('/secretary/assignhour', ['uses' => 'SecretaryController@doAssignHour', 'before' => 'secretary']);
+Route::get('/dashboard/secretary/assignHour', ['uses' => 'SecretaryController@showAssignHourFromHospitalSelected', 'before' => 'secretary']);
 
-Route::get('/doctor/secretaries', ['uses' => 'DoctorController@showSecretaries', 'before' => 'doctor']);
+Route::post('/dashboard/secretary/assignHour', ['uses' => 'SecretaryController@doAssignHour', 'before' => 'secretary']);
 
-Route::get('/doctor/patients', ['uses' => 'DoctorController@showPatients', 'before' => 'doctor']);
+Route::get('/dashboard/doctor/secretaries', ['uses' => 'DoctorController@showSecretaries', 'before' => 'doctor']);
 
-Route::get('/secretary/patients', ['uses' => 'SecretaryController@showPatients', 'before' => 'secretary']);
+Route::get('/dashboard/doctor/patients', ['uses' => 'DoctorController@showPatients', 'before' => 'doctor']);
 
-Route::get('/patients', ['uses' => function() {
+Route::get('/dashboard/secretary/patients', ['uses' => 'SecretaryController@showPatients', 'before' => 'secretary']);
+
+
+Route::post('/dashboard/doctor/refreshHoursForCalendar', ['uses' => 'DoctorController@doRefreshHoursForCalendar', 'before' => 'doctor']);
+
+Route::post('/dashboard/secretary/refreshHoursForCalendar', ['uses' => 'SecretaryController@doRefreshHoursForCalendar', 'before' => 'secretary']);
+
+Route::post('/dashboard/secretary/hospitalsWithPatients', ['uses' => 'SecretaryController@doGetHospitalsWithPatients', 'before' => 'secretary']);
+
+/*Route::get('/patients', ['uses' => function() {
     if(Auth::user()->role == 'doctor')
     {
-      return Redirect::to('/doctor/patients'); 
+      return Redirect::to('/dashboard/doctor/patients'); 
     }
     else if(Auth::user()->role == 'secretary')
     {
-      return Redirect::to('/secretary/patients'); 
+      return Redirect::to('/dashboard/secretary/patients'); 
     }
-  }, 'before' => 'auth']);
+  }, 'before' => 'doctor|secretary']);
+*/
 
-Route::post('/doctor/createPatient', ['uses' => 'DoctorController@doCreatePatient', 'before' => 'doctor']);
+/*
+Route::post('/dashboard/createPatient', ['before' => 'doctor|secretary', function() {
+  if (Session::get('idHospitalSelected') !== null)
+    $idHospitalSelected = Session::get('idHospitalSelected');
+  else
+    $idHospitalSelected = Auth::user()->hospitals[0]->idHospital;
+    
+    if(Auth::user()->isDoctorOn($idHospitalSelected))
+    {
+      return Redirect::action('DoctorController@doCreatePatient'); 
+    }
+    else if(Auth::user()->isSecretaryOn($idHospitalSelected))
+    {
+      return Redirect::action('SecretaryController@doCreatePatient'); 
+    }
+  } ]);
+*/
 
-Route::post('/secretary/createPatient', ['uses' => 'SecretaryController@doCreatePatient', 'before' => 'secretary']);
+Route::post('/dashboard/doctor/createPatient', ['uses' => 'DoctorController@doCreatePatient', 'before' => 'doctor']);
 
-Route::post('/doctor/modifyPatient', ['uses' => 'DoctorController@doModifyPatient', 'before' => 'doctor']);
+Route::post('/dashboard/secretary/createPatient', ['uses' => 'SecretaryController@doCreatePatient', 'before' => 'secretary']);
 
-Route::post('/secretary/modifyPatient', ['uses' => 'SecretaryController@doModifyPatient', 'before' => 'secretary']);
+Route::post('/dashboard/doctor/modifyPatient', ['uses' => 'DoctorController@doModifyPatient', 'before' => 'doctor']);
 
-Route::post('/assignSecretary', ['uses' => 'DoctorController@doAssignSecretary', 'before' => 'doctor']);
+Route::post('/dashboard/secretary/modifyPatient', ['uses' => 'SecretaryController@doModifyPatient', 'before' => 'secretary']);
 
-Route::post('/lockSecretary', ['uses' => 'DoctorController@doLockSecretary', 'before' => 'doctor']);
+Route::post('/dashboard/doctor/assignSecretary', ['uses' => 'DoctorController@doAssignSecretary', 'before' => 'doctor']);
 
-Route::post('/unlockSecretary', ['uses' => 'DoctorController@doUnlockSecretary', 'before' => 'doctor']);
+Route::post('/dashboard/doctor/lockSecretary', ['uses' => 'DoctorController@doLockSecretary', 'before' => 'doctor']);
 
-Route::post('/unassignSecretary', ['uses' => 'DoctorController@doUnassignSecretary', 'before' => 'doctor']);
+Route::post('/dashboard/doctor/unlockSecretary', ['uses' => 'DoctorController@doUnlockSecretary', 'before' => 'doctor']);
+
+Route::post('/dashboard/doctor/unassignSecretary', ['uses' => 'DoctorController@doUnassignSecretary', 'before' => 'doctor']);
+
+Route::get('/dashboard/doctor/prescriptions', ['uses' => 'DoctorController@showPrescriptions', 'before' => 'doctor']);
+
+Route::post('/dashboard/selectHospital', ['uses' => 'BaseController@selectHospital', 'before' => 'auth']);

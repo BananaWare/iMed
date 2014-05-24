@@ -1,0 +1,6 @@
+#table-responsive{
+  overflow: auto;
+}
+#table-responsive .row{
+  margin: 0 0;
+}

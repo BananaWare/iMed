@@ -23,4 +23,9 @@ class UserInfo extends Eloquent {
   {
     return $this->hasMany('UserRole', 'rut');
   }
+  
+  public function medicalHistory()
+  {
+    return $this->hasOne('MedicalHistory', 'idMedicalHistory', 'idMedicalHistory');
+  }
 }
