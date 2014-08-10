@@ -39,12 +39,59 @@ Route::filter('auth', function()
 
 Route::filter('secretary', function()
 {
-  if (Auth::guest() || !Auth::user()->isSecretaryOn(Session::get('idHospitalSelected'))) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
+  if (Auth::guest() || !Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')) )
+    return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');
+  else if (Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')) && 
+      Auth::user()->name == NULL )
+    return Redirect::guest('/dashboard/secretary/firstLogin')->with('msg', 'No tienes permiso para estar aquí');
+  
+});
+
+Route::filter('pre-secretary', function()
+{
+  if (Auth::guest() || !Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')) 
+      || isset(Auth::user()->name))
+    return Redirect::guest('/dashboard')->with('msg', 'No tienes permiso para estar aquí');;
 });
 
 Route::filter('doctor', function()
 {
   if (Auth::guest() || !Auth::user()->isDoctorOn(Session::get('idHospitalSelected'))) return Redirect::guest('/signin')->with('msg', 'No tienes permiso para estar aquí');;
+});
+
+Route::filter('billing', function()
+{
+   $billings = Auth::user()->getBillingsFromHospital(Session::get('idHospitalSelected'))
+      ->orderBy('startDateTime', 'desc') ->get();
+    $activeBillings = $billings->filter(function($b){
+      if ($b->status == "active")
+        return true;
+    });
+    if ($activeBillings->count()==0){
+      if(Auth::user()->isDoctorOn(Session::get('idHospitalSelected')))
+        return Redirect::guest('/dashboard/doctor/noSuscription')->with('msg', 'No tienes permiso para estar aquí');
+      else if (Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')))
+        return Redirect::guest('/dashboard/secretary/noSuscription')->with('msg', 'No tienes permiso para estar aquí');
+      else 
+        return Redirect::guest('/dashboard')->with('msg', 'No tienes permiso para estar aquí');
+    }
+});
+
+Route::filter('no-billing', function(){
+  $billings = Auth::user()->getBillingsFromHospital(Session::get('idHospitalSelected'))
+    ->orderBy('startDateTime', 'desc') ->get();
+  $activeBillings = $billings->filter(function($b){
+    if ($b->status == "active")
+      return true;
+  });
+  if ($activeBillings->count()>=1){
+    if(Auth::user()->isDoctorOn(Session::get('idHospitalSelected')))
+      return Redirect::guest('/dashboard/doctor/');
+    else if (Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')))
+      return Redirect::guest('/dashboard/secretary/');
+    else 
+      return Redirect::guest('/dashboard');
+  }
 });
 
 Route::filter('auth.basic', function()

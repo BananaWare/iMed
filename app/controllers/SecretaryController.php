@@ -19,8 +19,61 @@ class SecretaryController extends BaseController {
     JavaScript::put([
       'hospitals' => Auth::user()->hospitals
     ]);
+    // If she is a new secretary or it is her first login
+    if (!isset(Auth::user()->name) || !isset(Auth::user()->lastname) || 
+        !isset(Auth::user()->gender) || !isset(Auth::user()->birthdate) )
+      return Redirect::to('/firstLogin');
+    else
+      {
+        $this->layout->function = View::make('dashboard.secretarySidebar');
+        $this->layout->section = View::make('secretary.dashboard');
+      }
+  }
+  
+  public function firstLogin()
+  {
+      $this->layout->section = View::make('secretary.firstLogin');
+  }
+  
+  public function noSuscription()
+  {
+    if (Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')) == true)
+      $this->layout->function = View::make('dashboard.secretarySidebar');
+    else if (Auth::user()->isDoctorOn(Session::get('idHospitalSelected')) == true)
+      $this->layout->function = View::make('dashboard.doctorSidebar');
     
-    $this->layout->function = View::make('dashboard.secretarySidebar');
+    $this->layout->section = View::make('doctor.noSuscription');
+  }
+  
+  public function doModifySecretary()
+  {
+    $data = Input::all();
+    $rules = array(
+      'password' => 'required'
+    );
+    
+     $validator = Validator::make($data, $rules);
+    
+    if ($validator->fails()) {   
+      return $validator->messages();
+    }
+    
+    $user = Auth::user();
+    $userInfo = UserInfo::where("rut", "=", $user->rut)
+      ->where("idHospital", "=", Session::get('idHospitalSelected'))->first();
+    
+    $setUserWithInputsValidator = $this->setUserWithInputs($user, $userInfo);
+    if($setUserWithInputsValidator->fails())
+      return $setUserWithInputsValidator->messages();
+    
+    $user->password = Hash::make(Input::get('password'));
+    $user->save();
+    $userInfo->save();
+    
+    $userInfo->user = null;
+    $user['userInfo'] = $userInfo->toArray();
+    
+    return $user->toJson();
   }
   
   public function showAssignHourFromHospitalSelected()
@@ -52,18 +105,22 @@ class SecretaryController extends BaseController {
           $month =  date("m");
           $year = date("Y");
           $completeDoctor['patientsHours'] = array();
+          $completeDoctor['customSchedules'] = array();
           for ( $i = $month - 1 ; $i <= $month + 1 ; $i ++) {
-            $temp = $doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $i, $year)
-                                        ->get()->toArray();
-
+            $temp = array();
+            $pHs = $doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $i, $year)->get();
+            $tempCS = $doctor->getCustomScheduleFromHospitalToMonth($hospital->idHospital, $i, $year)
+               ->get()->toArray();
+            foreach($pHs as $pH)
+            {
+              $pH['patient'] = $pH->patient->toArray();
+              $pH['assigner'] = $pH->assigner->toArray();
+              $temp[] = $pH->toArray();
+            }
             $completeDoctor['patientsHours'] = array_merge($completeDoctor['patientsHours'],$temp);
-
+            $completeDoctor['customSchedules'] = array_merge($completeDoctor['customSchedules'], $tempCS);
           }
-
-          //$doctor->getPatientsHoursFromHospitalToMonth($hospital->idHospital, 2, 2014);
           $completeHospital['doctors'][] = $completeDoctor;
-          //$tempReg['doctors'][] = $completeDoctor;
-          //}
         };
       }
       else if ($role == 'doctor')
@@ -73,17 +130,28 @@ class SecretaryController extends BaseController {
         $month =  date("m");
         $year = date("Y");
         $user['patientsHours'] = array();
+        $user['customSchedules'] = array();
         for ( $i = $month - 1 ; $i <= $month + 1 ; $i++) {
-          $temp = Auth::user()->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $i, $year)
-            ->get()->toArray();
 
+          $temp = array();
+          $pHs = Auth::user()->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $i, $year)->get();
+          $tempCS = Auth::user()->getCustomScheduleFromHospitalToMonth($hospital->idHospital, $i, $year)
+          ->get()->toArray();
+          foreach($pHs as $pH)
+          {
+            $pH['patient'] = $pH->patient->toArray();
+            $pH['assigner'] = $pH->assigner->toArray();
+            $temp[] = $pH->toArray();
+          }
           $user['patientsHours'] = array_merge($user['patientsHours'], $temp);
+          $user['customSchedules'] = array_merge($user['customSchedules'], $tempCS);
         }
       }
       //$completeHospital;      
     };
     
     $hospitalWithPatients =  $this->getPatientsFullFromHospitalSelected(false);
+    $completeHospital['patients'] = $hospitalWithPatients['patients'];
     JavaScript::put([
       'hospital' => $completeHospital,
       'hospitalWithPatients' => $hospitalWithPatients,
@@ -104,15 +172,20 @@ class SecretaryController extends BaseController {
   {
     $user = new User();
     $userInfo = new UserInfo();
+    $medicalHistory = new MedicalHistory();
+    
     $doCreateUserValidator = $this->doCreateUser($user, $userInfo);
     if($doCreateUserValidator->fails())
       /*return Redirect::to('/patients')
         ->withInput()
         ->withErrors($doCreateUserValidator);*/
       return $doCreateUserValidator->messages();
-    
+    //$medicalHistory->rut = $user->rut;
+    $medicalHistory->save();
     $user->save();
+    $userInfo->idMedicalHistory = $medicalHistory->idMedicalHistory;
     $userInfo->save();
+    
     if (!User::find($user->rut)->isPatientOn(Input::get('idHospital')))
     {
       
@@ -193,6 +266,7 @@ class SecretaryController extends BaseController {
     //echo var_dump($user);
     //echo $user;return;
     $setUserWithInputsValidator = $this->setUserWithInputs($user, $userInfo);
+    
     if($setUserWithInputsValidator->fails())
     {
       /*return Redirect::to('/patients')
@@ -201,7 +275,7 @@ class SecretaryController extends BaseController {
       
       return $setUserWithInputsValidator->messages();
     }
-    
+    $user->password = Hash::make(Input::get("password"));
     $user->save();
     $userInfo->save();
     
@@ -225,7 +299,7 @@ class SecretaryController extends BaseController {
       'name' => 'required',
       'lastname' => 'required|max:15',
       'gender' => 'required|in:male,female',
-      'birthdate' => 'date',
+      'birthdate' => 'date_format:"Y-m-d"',
       'email' => 'email',
       'phone' => 'numeric',
       'idHospital' => 'numeric'
@@ -235,6 +309,7 @@ class SecretaryController extends BaseController {
     $validator->setAttributeNames($this->spanishNames);
     
     if (!$validator->fails()) {
+      $values= preg_split("/\//", Input::get('birthdate'));
       
       $user->name = Input::get('name');
       $user->lastname = Input::get('lastname');
@@ -272,6 +347,7 @@ class SecretaryController extends BaseController {
   
   public function doAssignHour()
   {
+    date_default_timezone_set('America/Santiago');
     $data = Input::all();
     $rules = array(
       'doctorsRut' => 'required|numeric',
@@ -286,9 +362,11 @@ class SecretaryController extends BaseController {
         return $validator->messages();
         //return Redirect::to('/patients');
     }
-    $startHour = new DateTime(Input::get('dateTimeAssign'));
+    
+    $startHour = new DateTime(  (new DateTime(Input::get('dateTimeAssign')))->format('Y-m-d H:i:s')  );
     $endHour = new DateTime(Input::get('dateTimeEnd'));
     
+      
     $patientHour = new PatientHour();
     $patientHour->doctorsRut = Input::get('doctorsRut');
     $patientHour->idHospital = Input::get('idHospital');
@@ -297,26 +375,52 @@ class SecretaryController extends BaseController {
     $patientHour->dateTimeAssign = $startHour;
     $patientHour->dateTimeEnd = $endHour;
     $patientHour->reason = Input::get('reason');
-    $patientHour->confirmed = Input::get('confirmed');    
-    $patientHour->save();
+    $patientHour->confirmed = false;
     
-    return $patientHour->toJson();
+    
+    if ($startHour  < new DateTime() )
+      return "denied";
+    
+    if (!$patientHour->save())
+    {
+      return 0;
+    }
+    $pH = PatientHour::find($patientHour->idHour);
+    
+    $pH['patient'] = $pH->patient->toArray();
+    $pH['assigner'] = $pH->assigner->toArray();
+    return $pH->toJson();
   }
   
-  public function revokeHour()
+  public function doRevokeHour()
   {
-    $patientHour = PatientHour::find(idPatientHour);
-    $patientHour->delete();
+    $patientHour = PatientHour::find(Input::get("idPatientHour"));
+    
+    if ((new DateTime($patientHour->dateTimeAssign, new DateTimeZone('America/Santiago'))) < new DateTime(null, new DateTimeZone('America/Santiago')) )
+      return "denied";
+    
+    if ($patientHour != null && $patientHour->delete())
+      return $patientHour->toJson();
+    else 
+      return "0";
   }
   
-  public function confirmHour()
+  public function doConfirmHour()
   {
-    $patientHour = PatientHour::find(idPatientHour);
-    $patientHour->confirmed = true;
-    $patientHour->save();
+    $patientHour = PatientHour::find(Input::get("idPatientHour"));
+    if ($patientHour != null)
+    {
+      $patientHour->confirmed = true;
+      if ($patientHour->save())
+        return $patientHour->toJson();
+      else 
+        return "0";
+    }
+    else
+      return "0";
   }
   
-  public function disconfirmHour()
+  public function doDisconfirmHour()
   {
     $patientHour = PatientHour::find(idPatientHour);
     $patientHour->confirmed = false;
@@ -363,71 +467,7 @@ class SecretaryController extends BaseController {
   {
     return getPatientsFullFromHospitalSelected(false);
   }
-  /*
-  protected function getHospitalWithPatientsFull($withPrescriptions)
-  {
-    $doctor = Auth::user();
-    $hospitals = $doctor->hospitals;
-    
-    foreach($hospitals as $hospital)
-    {
-      $completeHospital = $hospital->toArray();
-      foreach($hospital->patientsInfos as $patientInfo)
-      {
-        $completePatient = $patientInfo->user->toArray();
-        // Rellenamos con los siguientes datos solo si se solicitó por parametro que se rellenaran
-        if ($withPrescriptions)
-        {
-          $pHs = null;
-          foreach($patientInfo->user->patientHours as $patientHour)
-          {
-            $pH = $patientHour->toArray();
-            $pH['medicalSheet'] = null;
-            if ($patientHour->medicalSheet != null)
-            {
-              
-              $pH['medicalSheet'] = $patientHour->medicalSheet->toArray();
-              if ($patientHour->medicalSheet->prescription != null)
-              {
-                $prescription = $patientHour->medicalSheet->prescription;
-                $p = $prescription->toArray();
-                if ($prescription->drugs != null)
-                {
-                  foreach($prescription->drugs as $drug)
-                  {
-                    //$dP = $drug->toArray();
-                    $d = $drug->toArray();
-                    $p['drugs'][] = $d;
-                  }
-                }
-                else 
-                  $p['drugs'] = null;
-              }
-              else 
-                $p = null;
-              $pH['prescription'] = $p;
-            }
-            else
-              $pH['prescription'] = null;
-            $pHs[] = $pH;
-          }
-          $completePatient['patientHours'] = $pHs;
-        }
-        
-        $completePatient['userInfo'] = $patientInfo->toArray();
-        unset($completePatient['userInfo']['user']);
-        
-        if ($patientInfo->medicalHistory != null)
-          $completePatient['userInfo']['medicalHistory'] = $patientInfo->medicalHistory->toArray();
-        else
-          $completePatient['userInfo']['medicalHistory'] = null;
-        $completeHospital['patients'][] = $completePatient;
-      }
-      $tempReg['hospitals'][] = $completeHospital; 
-    }
-    return $tempReg;
-  }
-*/  
+ 
   protected function getPatientsFullFromHospitalSelected($withPrescriptions, $doctorsRut = null)
   {
     $hospital = Hospital::find(Session::get('idHospitalSelected'));
@@ -449,13 +489,12 @@ class SecretaryController extends BaseController {
           $pH['medicalSheet'] = null;
           if ($patientHour->medicalSheet != null)
           {
-
             $pH['medicalSheet'] = $patientHour->medicalSheet->toArray();
             if ($patientHour->medicalSheet->prescription != null)
             {
               $prescription = $patientHour->medicalSheet->prescription;
               $p = $prescription->toArray();
-              if ($prescription->drugs != null)
+              if ($prescription->drugs->count() != 0)
               {
                 foreach($prescription->drugs as $drug)
                 {
@@ -465,7 +504,14 @@ class SecretaryController extends BaseController {
                 }
               }
               else 
-                $p['drugs'] = null;
+              {
+                foreach($prescription->drugsPrescriptions as $drug)
+                {
+                  //$dP = $drug->toArray();
+                  $d = $drug->toArray();
+                  $p['drugs'][] = $d;
+                }
+              }
             }
             else 
               $p = null;
@@ -519,17 +565,82 @@ class SecretaryController extends BaseController {
             {
               foreach($months as $key => $month)
               {
-
-                $temp = $doctor->getPatientsHoursFromHospitalToMonth($idHospital, $month, $year)
-                ->get()->toArray();
+                $temp = array();
+                $pHs = $doctor->getPatientsHoursFromHospitalToMonth($idHospital, $month, $year)
+                ->get();
+                foreach($pHs as $pH)
+                {
+                  $pH['patient'] = $pH->patient->toArray();
+                  $pH['assigner'] = $pH->assigner->toArray();
+                  $temp[] = $pH->toArray();
+                }
 
                 $hours = array_merge($hours, $temp);
-              };
+              }
             }
-          };
+          }
+        }
+        else if ($role == "doctor")
+        {
+          foreach($months as $key => $month)
+          {
+            $temp = array();
+            $pHs = Auth::user()->getPatientsHoursFromHospitalToMonth($hospital->idHospital, $month, $year)->get();
+            foreach($pHs as $pH)
+            {
+              $pH['patient'] = $pH->patient->toArray();
+              $pH['assigner'] = $pH->assigner->toArray();
+              $temp[] = $pH->toArray();
+            }
+
+            $hours = array_merge($hours, $temp);
+          }
         }
       }
-    };
+    }
     return $hours;
+  }
+  
+  public function doAddExtraHour()
+  {
+    $idHospital = Session::get('idHospitalSelected');
+    $doctorsRut = Input::get('doctorsRut');
+    $day = Input::get('day');
+      
+    $customSchedules = CustomSchedule::where('idHospital', '=', $idHospital)->where('doctorsRut', '=', $doctorsRut)
+      ->where('day', '=', $day);
+    
+    $cS = new CustomSchedule();
+    if ($customSchedules->count() == 0)
+    {
+      $cS->idHospital = $idHospital;
+      $cS->doctorsRut = $doctorsRut;
+      $cS->day = $day;
+      $cS->extraHours = 1;
+    }
+    else
+    {
+      $cS = $customSchedules->first();
+      $cS->extraHours += 1;
+    }
+    
+    //Comprobando que no exceda las 24:00 horas.
+    $dayOfWeek =  (date('w', strtotime($day)) == 0) ? 7 : date('w', strtotime($day));
+    $schedule = DoctorSchedule::where('idHospital', '=', $idHospital)->where('doctorsRut', '=', $doctorsRut)
+      ->where('dayOfWeek', '=', $dayOfWeek)->first();
+    $endHour = new DateTime($day . ' ' . $schedule->endHour);
+    for($i=0; $i<$cS->extraHours; $i++)
+    {
+      list($hours, $minutes, $seconds) = preg_split("/:/", $schedule->intervalTime);
+      $endHour->add(new DateInterval('PT'. $hours . 'H' . $minutes .'M'));
+    }
+        
+    if ($endHour->format('Y-m-d') == $day)
+    {
+      $cS->save();
+      return 'true';
+    }
+    else
+      return 'false';
   }
 }

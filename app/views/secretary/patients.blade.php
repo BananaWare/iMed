@@ -1,17 +1,19 @@
+@section('title', 'Pacientes')
+
 @section('extra-css')
     {{ HTML::style('assets/css/fullcalendar.css') }}
     {{-- HTML::style('assets/css/fullcalendar.print.css') --}}
     {{ HTML::style('assets/css/customTables.css') }}
     {{ HTML::style('assets/css/dataTables.bootstrap.css') }}
+    {{ HTML::style('assets/css/daterangepicker.css') }}
 @stop()
 
 @section('section')
-<div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-            <span class="glyphicon glyphicon-home"></span>
+            <span class="glyphicon glyphicon-plus"></span>
             Nuevo paciente
           </a>
         </h4>
@@ -22,9 +24,7 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="row">
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
@@ -37,7 +37,7 @@
       <div id="collapseOne" class="panel-collapse collapse in">
         <div class="panel-body">
           <div id="table-responsive" class="table-responsive">
-            <table class="table table-bordered table-striped table-hover" id="patientsTable">
+            <table class="table table-bordered table-hover" id="patientsTable">
               <thead align="center">
                 <tr>
                   <th class="tname">Nombre</th>
@@ -56,13 +56,12 @@
         </div>
       </div>
     </div>
-  </div>
 
 @stop()
 
 @section('modifyPatientModal')
 <!-- Modal -->
-<div class="modal fade" id="modifyPatientModal" tabindex="-1" role="dialog" aria-labelledby="modifyPatientModal" aria-hidden="true">
+<div class="modal fade" id="modifyPatientModal" role="dialog" aria-labelledby="modifyPatientModal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -73,7 +72,7 @@
       <!-- Panels group -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="modifyPatientAccept">Modificar paciente</button>
+        <a type="button" class="btn btn-warning" id="modifyPatientAccept"><i class="icon-spin icon-refresh"></i><i class="glyphicon glyphicon-pencil icon-white"></i> Modificar</a>
       </div>
     </div>
   </div>
@@ -93,5 +92,7 @@
 {{ HTML::script('assets/js/jquery.dataTables.min.js') }}
 {{ HTML::script('assets/js/dataTables.bootstrap.js') }}
 {{ HTML::script('assets/js/patients.js') }}
+{{ HTML::script('assets/js/datePickerBugFixer.js') }}
+{{-- HTML::script('assets/js/daterangepicker.js') --}}
 
 @stop()

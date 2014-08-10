@@ -1,8 +1,7 @@
 // Document ready
-//var selectHospitalCombo = $('#selectHospitalCombo');
 var secretarysRutInput = $('#secretarysRutInput');
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
-const PLACEHOLDER_HOSPITAL = 'Ingrese rut de secretaria y presione enter. (Ejemplo: 12345678-9 o 12.345.678-9)';
+const PLACEHOLDER_HOSPITAL = 'Ingrese un rut y presione enter para crear una secretaria. (Ejemplo: 12345678-9 o 12.345.678-9)';
 var dataTable;
 
 $(function() {
@@ -64,8 +63,9 @@ var removeSecretaryDoctor = function (e){
   $.ajax({
     url: "/dashboard/doctor/unassignSecretary",
     type: "POST",
-    data: {'idSecretaryDoctor': id},
-    success: function(){
+    data: {'idSecretaryDoctor': id}
+  })
+  .done(function(){
       var key = indexOfHospitalSelected();
       var key2 = indexOfSecretary(e.dataset.rut);
       
@@ -74,11 +74,36 @@ var removeSecretaryDoctor = function (e){
       selectHospitalComboBox.magicSuggest().setData(hospitals);
       //hospitalsComboSelectionChange();
       loadSecretariesTable();
-    },
-    error: function(){
+    
+      BootstrapDialog.show({
+        type: BootstrapDialog.TYPE_SUCCESS,
+        title: 'Enhorabuena',
+        message: 'La secretaria se ha eliminado correctamente.',
+        buttons: [{
+          label: 'Aceptar',
+          cssClass: 'btn-primary',
+          action: function(dialogRef){
+            dialogRef.close();
+          }
+        }]
+      });
+    })
+    .fail(function(){
+    
+      BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_SUCCESS,
+          title: 'Ha ocurrido un error',
+          message: 'Ocurrió un error al eliminar la secretaria.',
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
       
-    }
-  });
+    });
 }
 var loadSecretariesTable = function (){
   dataTable.DataTable().clear().draw();
@@ -138,7 +163,7 @@ var loadSecretariesTable = function (){
       {
         "mData": null,
         "mRender": function ( data, type, row ) {
-          return "<a class='btn btn-danger' data-rut=" + row["rutFormated"] +
+          return "<a class='btn btn-danger remove-button' data-rut=" + row["rutFormated"] +
             " data-id-secretary-doctor=" + row["pivot"].idSecretaryDoctor +
             " onclick='removeSecretaryDoctor(this)'>" +
             "<i class='glyphicon glyphicon-remove icon-white'></i> Quitar</a>";
@@ -174,41 +199,88 @@ var loadSecretariesTable = function (){
     }
   });
 }
+
 secretarysRutInput.on("keypress", function(e) {
   // Si presiona enter.
   if (e.keyCode == 13) {
-    $.ajax({
-      url: "/dashboard/doctor/assignSecretary",
-      type: "POST",
-      data: {'rut': secretarysRutInput.val(), 'idHospital': hospitalSelected.idHospital},
-      success: function(xhr, textStatus, error){
-        secretarysRutInput.val('');
-        console.log(xhr);
-        alert('asigno');
-        var newSecretary = $.parseJSON(xhr);
-        //var newSecretary = $.parseJSON(xhr.user);
-        var key = indexOfHospitalSelected();
-        
-        if (typeof hospitals[key].secretaries === "undefined")
-        {
-          hospitals[key].secretaries = [];
-          hospitalSelected.secretaries = [];
-        }
-        hospitals[key].secretaries.push(newSecretary);
-        //hospitalSelected.secretaries.push(newSecretary);
-        selectHospitalComboBox.magicSuggest().setData(hospitals);
-        
-        //hospitalsComboSelectionChange();
-        loadSecretariesTable();
-      },
-      error: function(){
-        alert('no se pudo agregar la secretaria');
-      }
-    });
-    return false; // prevent the button click from happening
+    $("#assignSecretaryModal").modal('show');
+    $("#rutDialog").html(secretarysRutInput.val());
   }
 });
 
+$("#assignSecretaryAccept").click(function(e) {
+  $.ajax({
+    url: "/dashboard/doctor/assignSecretary",
+    type: "POST",
+    data: {'rut': secretarysRutInput.val(), 'idHospital': hospitalSelected.idHospital},
+    success: function(xhr, textStatus, error){
+      console.log(xhr);
+      secretarysRutInput.val('');
+      var exist = xhr.exist;
+      var newSecretary = $.parseJSON(xhr.secretary);
+      console.log(newSecretary);
+      //var newSecretary = $.parseJSON(xhr.user);
+      var key = indexOfHospitalSelected();
+
+      if (typeof hospitals[key].secretaries === "undefined")
+      {
+        hospitals[key].secretaries = [];
+        hospitalSelected.secretaries = [];
+      }
+      hospitals[key].secretaries.push(newSecretary);
+      //hospitalSelected.secretaries.push(newSecretary);
+      selectHospitalComboBox.magicSuggest().setData(hospitals);
+
+      //hospitalsComboSelectionChange();
+      loadSecretariesTable();
+
+      if (exist === true)
+        {
+          BootstrapDialog.show({
+            type: BootstrapDialog.TYPE_SUCCESS,
+            title: 'Enhorabuena',
+            message: 'La secretaria se ha añadido correctamente.<br /><br /> Ahora la secretaria puede iniciar sesion con su rut y la contraseña que ella ha establecido previamente en el sistema.',
+            buttons: [{
+              label: 'Aceptar',
+              cssClass: 'btn-primary',
+              action: function(dialogRef){
+                dialogRef.close();
+              }
+            }]
+          });
+        }
+      else
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_SUCCESS,
+          title: 'Enhorabuena',
+          message: "La secretaria se ha añadido correctamente.<br /><br /> Ahora la secretaria puede iniciar sesión utilizando:<br /><br /><b>Nombre de usuario:</b> " + newSecretary.rut + "-" + newSecretary.dv +"<br /><b>Contraseña:</b> " + newSecretary.rut + "<br /><br />Cuando inicie sesión deberá completar sus datos y cambiar su contraseña.",
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+    },
+    error: function(xhr, textStatus, error){
+      BootstrapDialog.show({
+        type: BootstrapDialog.TYPE_DANGER,
+        title: 'Tenemos un problema',
+        message: "Ha ocurrido un error creando la nueva secretaria, inténtelo nuevamente.",
+        buttons: [{
+          label: 'Aceptar',
+          cssClass: 'btn-primary',
+          action: function(dialogRef){
+            dialogRef.close();
+          }
+        }]
+      });
+    }
+  });
+});
+
+                      
 indexOfHospitalSelected = function()
 {
   temp = $.grep(hospitals, function( n, i ) {

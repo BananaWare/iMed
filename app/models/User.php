@@ -12,7 +12,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 */
 	protected $table = 'users';
   protected $primaryKey = 'rut';
-  protected $appends = array('rutFormated', 'fullName', 'age', 'isSecretary', 'isDoctor', 'isPatient');
+  protected $appends = array('rutFormated', 'fullName', 'age', 'isSecretary', 'isDoctor', 'isPatient', 'birthdateFormatted', 'fullNameRut');
   public $incrementing = false;
 	/**
 	 * The attributes excluded from the model's JSON form.
@@ -51,6 +51,28 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		return $this->email;
 	}
   
+  public function setNameAttribute($value)
+  {
+    $this->attributes['name'] = ucwords(strtolower($value));
+  }
+  
+  public function setLastnameAttribute($value)
+  {
+    $this->attributes['lastname'] = ucwords(strtolower($value));
+  }
+  
+	public function getBirthdateFormattedAttribute()
+	{
+    try{
+      list($year, $month, $day) = preg_split('/-/', $this->birthdate);
+      return $day . "/" . $month . "/" . $year;
+    }
+    catch(Exception $e)
+      {
+      return $this->birthdate;
+    }
+	}
+  
   //Secretary's function
   public function getDoctorsFromHospital($idHospital)
   {
@@ -72,6 +94,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     return $this->hasMany('DoctorSchedule', 'doctorsRut', 'rut')->where('idHospital', '=', $idHospital);
   }
   
+  //Doctor's function
+  public function getCustomScheduleFromHospitalToMonth($idHospital, $month, $year)
+  {
+    return $this->hasMany('CustomSchedule', 'doctorsRut', 'rut')->where('idHospital', '=', $idHospital)
+      ->where(DB::raw('YEAR(day)'), '=', $year)->where(DB::raw('MONTH(day)'), '=', $month);;
+  }
   /*
    * Doctor's function. Allows you to get patient's hours from an hospital in a month of a year.
    * If the month or year is null it assume current.
@@ -135,11 +163,25 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     return $fullName;
   }
   
+  // Atributo solamente necesario para buscar en el magicSuggest por nombre y rut debido a que el plugin no acepta otra forma.
+  public function getFullNameRutAttribute()
+  {
+    $nameWithoutAccents = preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);~i', '$1', htmlentities($this->fullName, ENT_COMPAT, 'UTF-8'));
+    return $nameWithoutAccents . ' ' . $this->rut . '-' . $this->dv . ' ' . $this->rutFormated;
+  }
+  
   public function getAgeAttribute()
   {
+    try
+    {
     $from = new DateTime($this->birthdate);
     $to = new DateTime('today');
     return $from->diff($to)->y;
+    }
+    catch(Exception $e)
+    {
+      return 0;
+    }
   }
   
   public function getIsSecretaryAttribute()
@@ -215,5 +257,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return true;
       }
     });
+  }
+  
+  //Doctor's function
+  public function getBillingsFromHospital($idHospital)
+  {
+    return Billing::where('payersRut', '=', $this->rut)->where('idHospital', '=', $idHospital);
   }
 }

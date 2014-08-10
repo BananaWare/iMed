@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder {
     $this->call('MedicalHistoryTableSeeder');
     $this->call('DrugTableSeeder');
     $this->call('DrugPrescriptionTableSeeder');
-	}
-
+    $this->call('BillingTableSeeder');
+	  $this->call('CustomScheduleTableSeeder');
+  }
 }

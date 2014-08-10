@@ -26,6 +26,7 @@ class UserInfo extends Eloquent {
   
   public function medicalHistory()
   {
-    return $this->hasOne('MedicalHistory', 'idMedicalHistory', 'idMedicalHistory');
+    return $this->belongsTo('MedicalHistory', 'idMedicalHistory', 'idMedicalHistory');
+    //return $this->hasOne('MedicalHistory', 'idMedicalHistory', 'idMedicalHistory');
   }
 }

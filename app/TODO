@@ -1,0 +1,27 @@
+** To do:
+
+
+En el calendario de asignar hora, falta una imagen de cargando al cambiar los meses.
+Comprobar que sucede al crear un paciente cuyo rut ya exista, notificar de alguna manera a la secretaria de esto.
+
+En el calendario de asignar hora, las horas que no tengan minuto deberían aparecer en formato correcto: ejemplo 15 a 14:30 -> 15:00 a 14:30
+Mejorar la estética del agregar nuevo remedio en el modal recetar.
+Los mensajes de tour aparecen acada rato.
+
+Encontrar un nombre no usado para el sistema.
+
+
+
+
+** Done:
+Los nombres de usuarios ahora siempre comenzarán con mayúscula.
+El buscador de magicSuggest ahora permite buscar por nombre, apellido, rut y rut formateado.
+Arreglar los combobox de pacientes, doctores, etc. En ellos aparece una imagen que no existe y comprobar sobre que campo se busca.
+Al agregar paciente, el calendario de nacimiento debería iniciar seleccionando año.
+Al cambiar el horario de trabajo, falta un mensaje de error y una de cambio correcto.
+Al abrir una bloque horario no asignado en el calendario de asignar hora, se tiene que visualizar la fecha y hora a asignar.
+Al cambiar desde un hospital sin suscripción en la ventana de no suscripción a uno con suscripción aún aparece el mensaje de que no hay suscripción.
+Arreglar formularios de al crear y editar paciente que aparecen mal dibujados.
+Hacer el controlador y vista para que el doctor pueda ver sus pagos y cuando días le quedan de uso.
+Cambiar alerts al asignar, remover y confirmar hora.
+Al crear secretaria los mensajes de error y creación correcta no son bootstrapDialog.

@@ -12,4 +12,9 @@ class DrugPrescription extends Eloquent {
 	 */
 	protected $table = 'drugs_prescriptions';
   protected $primaryKey = 'idDrugPrescription';
+  
+  public function prescription()
+  {
+    return $this->belongsTo('Prescription', 'idPrescription'); 
+  }
 }

@@ -76,7 +76,6 @@ var hospitalsComboSelectionChange = function(event, combo, selection){
     type: "POST",
     data: {'idHospital': hospitalSelected.idHospital},
     success: function(xhr){
-      console.log(xhr);
       localStorage.setItem('userRole', xhr);
       if (!primeraCarga)
         location.reload();
@@ -91,7 +90,6 @@ var hospitalsComboSelectionChange = function(event, combo, selection){
 indexOfHospital = function(idHospital)
 {
   temp = $.grep(hospitals, function( n, i ) {
-    console.log(n);
     return (n.idHospital==idHospital);
   });
   if(temp.length === 0)

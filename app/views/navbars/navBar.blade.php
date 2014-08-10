@@ -1,5 +1,5 @@
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container">
+<div class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target=".navbar-collapse">
         <span class="sr-only">Toggle navigation</span>
@@ -8,7 +8,7 @@
         <span class="icon-bar"></span>
       </button>
       @if(Request::is('dashboard*'))
-      <button type="button" class="navbar-toggle pull-left sidebar-button" data-toggle="offcanvas" data-target=".navbar-collapse">
+      <button type="button" class="navbar-toggle navbar-toggle-left pull-left sidebar-button" data-toggle="offcanvas" data-target=".navbar-collapse">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -24,17 +24,22 @@
         <div id="selectHospitalComboBox" class="navbar-right"></div>
       </div>-->
       <ul class="nav navbar-nav">
-        <li class="active">
+        <li id="dashboard" class="active">
           <a href="/dashboard">Mi Escritorio</a>
         </li>
       </ul>
-      <form id="hospitalsFormContainer" class="navbar-form navbar-left" role="form">
-        <div id="selectHospitalComboBox"></div>
-      </form>
+      <div id="selectHospitalTour">
+        <form id="hospitalsFormContainer" class="navbar-form navbar-left" role="form">
+          <div id="selectHospitalComboBox"></div>
+        </form>
+      </div>
       <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a id="helpMe" class="glyphicon glyphicon-question-sign"></a>
+        </li>
         <li class="dropdown">
           <a class="dropdown dropdown-toggle" data-toggle="dropdown" href="#">
-            {{ Auth::user()->name }}
+            {{ Auth::user()->name }} {{ Auth::user()->lastname }} 
             <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
@@ -52,7 +57,7 @@
               </a>
             </li>
           </ul>
-        </li>  
+        </li>
       </ul>
       @else
       <form class="navbar-form navbar-right" role="form" method="POST" action="/signin">
@@ -75,9 +80,9 @@
 
             </div>
             <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-          </div></div>
+
             </form>
           @endif
         </div>
-        </div>
+      </div>
     </div>

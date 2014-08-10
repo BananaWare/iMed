@@ -18,7 +18,7 @@ class PatientHour extends Eloquent {
     return $this->belongsTo('User', 'doctorsRut', 'rut');
   }
   
-  public function assinger()
+  public function assigner()
   {
     return $this->belongsTo('User', 'assignersRut', 'rut');
   }

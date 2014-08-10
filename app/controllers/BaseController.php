@@ -30,6 +30,18 @@ class BaseController extends Controller {
       else if ($role->role == "secretary")
         $r = $role->role;
     }
+   /*
+     $billings = Auth::user()->getBillingsFromHospital(Session::get('idHospitalSelected'))
+      ->orderBy('startDateTime', 'desc') ->get();
+    $activeBillings = $billings->filter(function($b){
+      if ($b->status == "active")
+        return true;
+    });
+    if ($activeBillings->count()==0)
+      Session::put('activeBilling', false);
+    else
+      Session::put('activeBilling', true);
+    */
     return $r;
   }
   

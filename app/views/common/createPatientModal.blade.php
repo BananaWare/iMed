@@ -1,4 +1,4 @@
-<div class="modal fade" id="createPatientModal" tabindex="-1" role="dialog" aria-labelledby="createPatientModal" aria-hidden="true">
+<div class="modal fade" id="createPatientModal" role="dialog" aria-labelledby="createPatientModal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -8,8 +8,8 @@
       @include('/common/contentPatientModal')
       <!-- Panels group -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" id="createPatientCancel" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="createPatientAccept">Crear paciente</button>
+        <a type="button" class="btn btn-default" id="createPatientCancel" data-dismiss="modal">Cancelar</a>
+        <a type="button" class="btn btn-success"  id="createPatientAccept"><i class="icon-spin icon-refresh"></i><i class="glyphicon glyphicon-plus"></i> Crear paciente</a>
       </div>
     </div>
   </div>

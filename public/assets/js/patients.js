@@ -2,7 +2,7 @@
 var patientsRutInput = $('#patientsRutInput');
 
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
-const PLACEHOLDER_HOSPITAL = 'Ingrese rut de paciente y presione enter. (Ejemplo: 12345678-9 o 12.345.678-9)';
+const PLACEHOLDER_HOSPITAL = 'Ingrese un rut y presione enter para crear un paciente. (Ejemplo: 12345678-9 o 12.345.678-9)';
 var dataTable;
 
 // Document ready
@@ -32,11 +32,27 @@ $(function() {
       "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
       "sSortDescending": ": Activar para ordenar la columna de manera descendente"
     }
-  });
-  //hospitalSelected = hospitals[indexOfHospital($.cookie('idHospitalSelected'))];
-  hospitalSelected = hospitals[indexOfHospital(localStorage.idHospitalSelected)];
-  
+  });  
   loadPatientsTable();
+  /*$(".dateRangePicker").daterangepicker({
+    format: 'DD-MM-YYYY',
+    singleDatePicker: true,
+    showDropdowns: true,
+    startDate: moment(),
+    maxDate: moment()
+  });*/
+  /*
+  $('.dp').datepicker({
+    
+    format:'dd-mm-yyyy',
+    weekStart: 1,
+    viewMode: 'years',
+    minViewMode: 'days'
+    
+  });*/
+  $('.dp').datepicker();
+  //$('#birthdateInput').datepicker();
+
 });
 
 var eventClickEvent = function(calEvent, jsEvent, view) {
@@ -57,7 +73,6 @@ var removePatient = function (e){
         if (hospital.idHospital == hospital.idHospital)
         {
           hospitals[key].patients.splice(e.dataset.index,1);
-          //hospital.patients.splice(e.dataset.index,1);
           selectHospitalCombo.magicSuggest().setData(hospitals);
           
           return false;
@@ -75,7 +90,8 @@ var loadPatientsTable = function (){
   dataTable.DataTable().clear().draw();
   dataTable.DataTable().destroy();  
   
-  if (typeof hospitalSelected !== "undefined")
+  //if (typeof hospitalSelected !== "undefined")
+  if (typeof hospital !== "undefined")
   {
     patientsRutInput.prop('placeholder', PLACEHOLDER_HOSPITAL);
     patientsRutInput.prop('disabled', false);
@@ -91,7 +107,6 @@ var loadPatientsTable = function (){
   
   if (undefined === hospital.patients)
     hospital.patients = [];
-  console.log(hospital.patients);
   dataTable = $('#patientsTable').dataTable({
     "aoColumnDefs": [
       {
@@ -213,10 +228,11 @@ $("#createPatientAccept").click(function(e) {
 var patientClickedIndex;
 var modifyPatient = function (e){
   patientClickedIndex = dataTable.fnGetPosition(e.parentElement.parentElement);
-  var index1 = indexOfHospitalSelected();
-  var index2 = indexOfPatient(e.dataset.rut);
+  //var index1 = indexOfHospitalSelected();
+  var index = indexOfPatient(e.dataset.rut);
   
-  var patient = hospitals[index1].patients[index2];
+  //var patient = hospitals[index1].patients[index2];
+  var patient = hospital.patients[index];
   
   $(".rut").prop('disabled', true);
   
@@ -227,7 +243,7 @@ var modifyPatient = function (e){
   $('.rut').val(patient.rutFormated);
   $('.name').val(patient.name);
   $('.lastname').val(patient.lastname);
-  $('.birthdate').val(patient.birthdate);
+  $('.birthdate').val(patient.birthdateFormatted);
   $('.email').val(patient.userInfo.email);
   $('.phone').val(patient.userInfo.phone);
   $('.city').val(patient.userInfo.city);
@@ -246,31 +262,25 @@ var modifyPatient = function (e){
 }
 
 $( "#modifyPatientAccept" ).click(function(e) {
+  var values = $('.birthdate')[1].value.split("/");
+  var birthdate = values[2] + '-' +  values[1] + '-' + values[0];
+  
   $.ajax({
     url: "/dashboard/doctor/modifyPatient",
     type: "POST",
     data: {'rut': $('.rut')[1].value, 'name': $('.name')[1].value, 'lastname': $('.lastname')[1].value,
-           'birthdate': $('.birthdate')[1].value, 'email': $('.email')[1].value, 'phone': $('.phone')[1].value,
+           'birthdate': birthdate, 'email': $('.email')[1].value, 'phone': $('.phone')[1].value,
            'city': $('.city')[1].value, 'address': $('.address')[1].value, 'gender': 
            $('input[name=gender]:checked').val(), 'idHospital': hospital.idHospital},
     success: function($xhr){
       patientsRutInput.val('');
-      
       try{
         var modifiedPatient = $.parseJSON($xhr);
-      
-        var key = indexOfHospitalSelected();
-        if (typeof hospitals[key].patients === "undefined")
-        {
-          hospitals[key].patients = [];
+        if (typeof hospital.patients === "undefined")
           hospital.patients = [];
-        }
-        var key2 = indexOfPatient(modifiedPatient.rut);
-        hospitals[key].patients[key2] = modifiedPatient;
-        //hospital.patients[key2] = modifiedPatient;
         
-        selectHospitalComboBox.magicSuggest().setData(hospitals);   
-        //hospitalsComboSelectionChange();
+        var key2 = indexOfPatient(modifiedPatient.rut);
+        hospital.patients[key2] = modifiedPatient;
         loadPatientsTable();
         $('#modifyPatientModal').modal('hide');
       }

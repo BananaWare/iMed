@@ -15,7 +15,7 @@ class MedicalSheet extends Eloquent {
   
   public function prescription()
   {
-    return $this->hasOne('Prescription', 'idPrescription');
+    return $this->hasOne('Prescription', 'idSheet');
   }
   
   public function patientHour()

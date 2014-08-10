@@ -21,17 +21,17 @@ var eventType = {
 var calendarSpinner;
 
 $(document).ready(function() {
-   patientsMagicSuggest = selectPatientCombo.magicSuggest({
+  patientsMagicSuggest = selectPatientCombo.magicSuggest({
     width: 'auto',
-    sortOrder: 'name',
-    groupBy: 'userInfo.city',
+    sortOrder: 'lastname',
     maxSelection: 1,
     highlight: false,
-    data: hospitalWithPatients.patients,
+    data: hospital.patients,
     selectionRenderer: patientsComboSelectionRenderer,
     renderer: patientsComboRenderer,
+    displayField: 'fullNameRut', // Campo necesario ya que magicSuggest no filtra por dos atributos
     valueField: 'rut',
-    placeholder: 'Escriba o seleccione un elemento',
+    placeholder: 'Escriba o seleccione un paciente',
     noSuggestionText: 'No hay resultados para su búsqueda',
     allowFreeEntries: false
   }); 
@@ -39,23 +39,23 @@ $(document).ready(function() {
   {
     selectDoctorCombo = $('#selectDoctorCombo').magicSuggest({
       width: 'auto',
-      sortOrder: 'name',
-      groupBy: 'userInfo.city',
+      sortOrder: 'lastname',
       valueField: 'rut',
       maxSelection: 1,
       highlight: false,
       allowFreeEntries: false,
+      displayField: 'fullNameRut', // Campo necesario ya que magicSuggest no filtra por dos atributos
       data: hospital.doctors,
-      placeholder: 'Escriba o seleccione un elemento',
+      placeholder: 'Escriba o seleccione un doctor',
       noSuggestionText: 'No hay resultados para su búsqueda',
+      selectionRenderer: function(v){
+        return v.fullName;
+      },
       renderer: function(v){
-        return '<div>' +
-          '<div style="float:left;"><img src="' + v.image + '"/></div>' +
-          '<div style="padding-left: 85px;">' +
-          '<div style="padding-top: 20px;font-style:bold;font-size:120%;color:#333">' + v.name + ' ' + v.lastname + '</div>' +
-          '<div style="color: #999">' + v.city + '</div>' +
-          '</div>' +
-          '</div><div style="clear:both;"></div>';
+        /*'<div style="float:left;">' + '<img src="' + v.image + '"/></div>' + */
+        return  '<div">' +
+          '<div style="padding-left:10px;font-style:bold;font-size:120%;color:#333">' + v.fullName + '  <span style="font-style:none;color: #999">' + v.rutFormated + '</span></div>' +
+          '</div>';
       }
     });
 
@@ -74,7 +74,7 @@ $(document).ready(function() {
     }
     else if (hospital.doctors.length == 1)
     {
-      $('#selectDoctorCombo').magicSuggest().setValue();
+      selectDoctorCombo.setValue(selectDoctorCombo.getData())
     }
   }
   else if (role == "doctor")
@@ -88,20 +88,18 @@ $(document).ready(function() {
   $("#createPatientButton").on('click', createPatientClick);
   if (role == "doctor")
     makeCalendar();
+  $('.dp').datepicker();
 });
 
 var patientsComboSelectionRenderer = function (a){
-  return a.name;
+  return a.fullName;
 }
 
 var patientsComboRenderer = function(v){
-  return '<div>' +
-    '<div style="float:left;"><img src="' + v.image + '"/></div>' +
-    '<div style="padding-left: 85px;">' +
-    '<div style="padding-top: 20px;font-style:bold;font-size:120%;color:#333">' + v.fullName + '</div>' +
-    '<div style="color: #999">' + v.rutFormated + '</div>' +
-    '</div>' +
-    '</div><div style="clear:both;"></div>';
+  /*'<div style="float:left;">' + '<img src="' + v.image + '"/></div>' + */
+  return  '<div">' +
+    '<div style="padding-left:10px;font-style:bold;font-size:120%;color:#333">' + v.fullName + '  <span style="font-style:none;color: #999">' + v.rutFormated + '</span></div>' +
+    '</div>';
 }
 
 var createPatientClick = function()
@@ -121,15 +119,17 @@ function getEventsForDay(date, patientsHours)
       && (endDate.utc().format("YYYY-MM-DD") == date.utc().format("YYYY-MM-DD"))
     )
     {
-      var backgroundColor = value.confirmed ? '#5cb85c' : '#f0ad4e';
-      var confirmedText = value.confirmed ? 'Confirmada' : 'Por confirmar';      
+      var backgroundColor = value.confirmed ? '#329232' : '#C97D12';
+      var confirmedText = value.confirmed ? 'Confirmada' : 'Por confirmar';
       var tempEvent = {
-        title: 'Hora asignada - Estado: ' + confirmedText + ' - Motivo: ' + value.reason,
+        title: 'Hora asignada - Estado: ' + confirmedText + ' - Paciente: ' + value.patient.fullName + " - RUT: " +
+          value.patient.rutFormated + " - Asignado por: " + value.assigner.fullName,
         start:  value.dateTimeAssign,
         end: value.dateTimeEnd,
         color: backgroundColor,
         textColor: 'white',
-        eventType: eventType.NotWork
+        eventType: eventType.AssignedHour,
+        patientHour: value
       }
       dayEvents.push(tempEvent);           
     }
@@ -141,13 +141,28 @@ function getDaySchedule(date, selectedDoctor)
 {
   var selectedDaySchedule = null;
   var selectedNumberDayOfWeek = date.utc().format('d');
+ 
   $.each(selectedDoctor.schedules, function(key, value){
     if(value.dayOfWeek == selectedNumberDayOfWeek)
     {
       selectedDaySchedule = value;
     }
   }); 
-
+  if (selectedDaySchedule === null)
+    return selectedDaySchedule;
+  
+  //Aqui comienza la logica de horas extras para los dias correspondientes.
+  var extra = getExtraHoursFromDay(date);
+  var end = moment("1990-01-01 " + selectedDaySchedule.endHour, "YYYY-MM-DD HH:mm:ss");
+  var interval = moment.duration({
+    minutes: selectedDaySchedule.intervalTime.split(':')[1],
+    hours: selectedDaySchedule.intervalTime.split(':')[0]
+  });
+  
+  for(i=0; i<extra; i++)
+    end = end.add(interval);
+  
+  selectedDaySchedule.endHourFinal = end.format("HH:mm:ss");
   return selectedDaySchedule;
 
 }
@@ -157,6 +172,11 @@ var dayClickEvent = function(date, jsEvent, view) {
   {
     return; 
   }
+  renderDay(date, view);
+}
+
+function renderDay(date, view)
+{
   var selectedDoctor = currentDoctor;  
   var selectedDaySchedule = null; 
   var dayEvents = [];
@@ -203,7 +223,25 @@ var eventClickEvent = function(calEvent, jsEvent, view) {
   
   switch(calEvent.eventType)
     {
-      case evetType.NotWork:
+      case eventType.AssignedHour:
+        console.log(calEvent);
+        $('#idPatientHourSelected').val(calEvent.patientHour.idHour);
+        $('#ahDateTime').text(calEvent.start.format("LLLL"));
+        $('#ahName').text(calEvent.patientHour.patient.fullName);
+        $('#ahRut').text(calEvent.patientHour.patient.rutFormated);
+        $('#ahAssignBy').text(calEvent.patientHour.assigner.fullName);
+        if (calEvent.patientHour.confirmed)
+          $('#ahState')[0].innerHTML = "<span class='label label-success'>Confirmada</span>";
+        else
+          $('#ahState')[0].innerHTML = "<span class='label label-warning'>Por confirmar</span>";
+        if (calEvent.patientHour.confirmed === 1)
+          $('#confirmHourAccept').hide();
+        else
+          $('#confirmHourAccept').show();
+        $('#confirmHourModal').modal('show');
+        return;
+        
+      case eventType.NotWork:
         return;
         
       case eventType.PatientHour:
@@ -213,16 +251,8 @@ var eventClickEvent = function(calEvent, jsEvent, view) {
     }
 }
 
-
-
-/*
-$("#createPatientCancel").click(function(e) {
-  $('#assignHourModal').modal('show');
-})*/
-
 $("#createPatientAccept").click(function(e) {
   createPatient();
-  //$('#assignHourModal').modal('show');
 })
 //Evento que se dispara cuando se selecciona un bloque del calendario
 
@@ -234,6 +264,10 @@ var selectBlockEvent = function(start, end, jsEvent, view)
   }
   else
   {
+    console.log(start);
+  console.log(end);
+    $("#dateTimeFormatted").html(start.format('dddd DD [de] MMMM YYYY H:mm') + " - " + end.format('H:mm'));
+    patientsMagicSuggest.clear();
     $("#startHour").val(start);
     $("#endHour").val(end)
     $('#assignHourModal').modal('show');
@@ -241,9 +275,8 @@ var selectBlockEvent = function(start, end, jsEvent, view)
 }
 
 //Devuelve un arreglo que contiene en cada clave la cantidad de horas pedidas para ese día
-function getAvailableHoursEvents()//currentDoctor)
+function getAvailableHoursEvents()
 {
-
   var usedBlocksPerDay = [];
   
   var freeBlocksPerDay = [];
@@ -258,7 +291,7 @@ function getAvailableHoursEvents()//currentDoctor)
     var startHour = moment(value.startHour, "HH:mm:ss");
 
     var endHour = moment(value.endHour, "HH:mm:ss");
-
+    
     var interval = moment(value.intervalTime, "HH:mm:ss").hours()*60 + moment(value.intervalTime, "HH:mm:ss").minutes();
 
     var durationInMinutes = moment.duration(endHour.subtract(startHour)).asMinutes();
@@ -273,8 +306,9 @@ function getAvailableHoursEvents()//currentDoctor)
     var dayNumber = parseInt(moment(value.dateTimeAssign).utc().format('D'));
     var monthNumber = parseInt(moment(value.dateTimeAssign).utc().format('MM'));
     var dayOfWeek = parseInt(moment(value.dateTimeAssign).utc().format('d'));
-
-    (usedBlocksPerDay[monthNumber][dayNumber] == undefined) ? usedBlocksPerDay[monthNumber][dayNumber] = blocksPerDay[dayOfWeek] - 1 :     usedBlocksPerDay[monthNumber][dayNumber] -= 1;
+    var extraHours = getExtraHoursFromDay(moment(value.dateTimeAssign));
+    
+    (usedBlocksPerDay[monthNumber][dayNumber] == undefined) ? usedBlocksPerDay[monthNumber][dayNumber] = blocksPerDay[dayOfWeek] + extraHours - 1 :     usedBlocksPerDay[monthNumber][dayNumber] -= 1;
     
   }); 
   
@@ -310,8 +344,10 @@ function getAvailableHoursEvents()//currentDoctor)
             endEvent.hours(23)
             endEvent.minutes(59);
             
+            var extraHours = getExtraHoursFromDay(initDate);
+            
             var tempEvent = {
-              title: blocksPerDay[dayOfWeek] + ' Horas disponibles',
+              title: (blocksPerDay[dayOfWeek] + extraHours)  + ' Horas disponibles',
               start:  startEvent,
               end: endEvent,
               color: '#5cb85c',
@@ -325,7 +361,7 @@ function getAvailableHoursEvents()//currentDoctor)
             var startEvent = moment(initDate.utc());
             startEvent.hours(0);
             startEvent.minutes(0);
-            var endEvent =  moment(initDate.utc());
+            var endEvent = moment(initDate.utc());
             endEvent.hours(23)
             endEvent.minutes(59);
             
@@ -342,13 +378,9 @@ function getAvailableHoursEvents()//currentDoctor)
             }
             dayEvents.push(tempEvent);
           }
-
         }
-
       }
-
     }
-
   }); 
   return dayEvents;
 }
@@ -362,7 +394,7 @@ function changeViewAndSource(events, agendaDayOptions, date, view){
     defaultView: view,
     slotDuration: agendaDayOptions.intervalTime,
     minTime: agendaDayOptions.startHour,
-    maxTime: agendaDayOptions.endHour,
+    maxTime: agendaDayOptions.endHourFinal,
     allRowsTimestamp: true,
     hasAxisRange: true,
     axisRangeSeparator: 'a',
@@ -391,6 +423,7 @@ function changeViewAndSource(events, agendaDayOptions, date, view){
   
   $('#calendar').fullCalendar(options);  
 
+  viewChange(view);
 }
 
 function changeSource(eventSource)
@@ -410,7 +443,7 @@ function getNotWorkDaySchedule(date)
   var schedule = {
     intervalTime: moment.duration('24:00:00'),
     startHour: startEvent.format('HH:mm:ss'),
-    endHour: endEvent.format('HH:mm:ss')
+    endHourFinal: endEvent.format('HH:mm:ss')
   }
   return schedule;
 }
@@ -435,6 +468,22 @@ function getNotWorkEvent(date)
   return dayEvents;
 }
 $("#assignHourAccept").click(function(e) {
+  if (patientsMagicSuggest.getSelection().length === 0)
+  {
+    BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_WARNING,
+          title: 'Debe seleccionar un paciente',
+          message: "Para asignar una hora debe seleccionar un paciente en la barra de más arriba o crear un paciente nuevo en el botón de al lado.",
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+    return;
+  }
   $.ajax({ 
       url: '/dashboard/' + localStorage.userRole + '/assignHour',
       data: {
@@ -448,17 +497,61 @@ $("#assignHourAccept").click(function(e) {
       type: 'post',
       success: function(response) {
         console.log(response);
-        alert("asignó");
+        
+        currentDoctor.patientsHours.push(response);
+        var view = $('#calendar').fullCalendar('getView');
+        var date = view.intervalStart.utc();
+        renderDay(date, view);
+        
         $("#assignHourModal").modal('hide');
+        
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_SUCCESS,
+          title: 'Hora correctamente asignada',
+          message: 'La hora fue asignada correctamente al paciente.',
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
       },
     error: function(response){
       console.log(response);
+      if(response.responseText == "denied")
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_DANGER,
+          title: 'Tenemos un problema',
+          message: "No se pueden asignar al paciente una hora que ya pasó.",
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+      else
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_DANGER,
+          title: 'Tenemos un problema',
+          message: "No se pudo asignar la hora al paciente, actualice la página " + 
+            "y compruebe que la hora no ha sido ocupada.",
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
     }
   });
 });
-
 var onDateChange = function(view)
-{
+{  
   debugWrite(view.intervalStart.utc());
   currentMonth = parseInt(moment(view.intervalStart).utc().format('M'));
   currentYear = parseInt(moment(view.intervalStart).utc().format('YYYY'));
@@ -470,7 +563,7 @@ var onDateChange = function(view)
     currentDatesInMemory.Months.endMonth = currentMonth + 1; 
     currentDatesInMemory.Year = currentYear;
     $.ajax({ 
-      url: '/dashboard/secretary/refreshHoursForCalendar',
+      url: '/dashboard/' + localStorage.userRole + '/refreshHoursForCalendar',
       data: {
         idHospital: hospital.idHospital,
              rut: currentDoctor.rut,
@@ -505,6 +598,22 @@ var onDateChange = function(view)
             changeViewAndSource(getAvailableHoursEvents(currentDoctor), "", date, "month");      
             break;
         }  
+      },
+      error: function(res){
+         BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_DANGER,
+          title: 'Tenemos un problema',
+          message: "Error cargando los datos para el calendario.",
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+      console.log(res);
+      
       }
     });
   }
@@ -537,7 +646,6 @@ var onDateChange = function(view)
 
 var viewChangeEvent = function(view, element)
 {
-  
 }
 
 
@@ -548,3 +656,213 @@ function debugWrite(data)
     console.log(data);
   }
 }
+
+$("#confirmHourAccept").click(function(e) {
+  $.ajax({ 
+      url: '/dashboard/' + localStorage.userRole + '/confirmHour',
+      data: {
+        'idPatientHour' : $("#idPatientHourSelected").val()
+      },
+      dataType: 'json',
+      type: 'post',
+      success: function(response) {
+        console.log(response);
+        $(currentDoctor.patientsHours).each(function(index, element){
+          if (element.idHour == response.idHour)
+          {
+            currentDoctor.patientsHours[index].confirmed = true;
+            return false;
+          }
+        });
+        var view = $('#calendar').fullCalendar('getView');
+        var date = view.intervalStart.utc();
+        renderDay(date, view);
+        $("#confirmHourAccept").modal('hide');
+        
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_SUCCESS,
+          title: 'Hora correctamente confirmada',
+          message: 'La hora fue confirmada correctamente.',
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+      },
+    error: function(response){
+      BootstrapDialog.show({
+        type: BootstrapDialog.TYPE_DANGER,
+        title: 'Tenemos un problema',
+        message: 'Hubo un problema al confirmar la hora',
+        buttons: [{
+          label: 'Aceptar',
+          cssClass: 'btn-primary',
+          action: function(dialogRef){
+            dialogRef.close();
+          }
+        }]
+      });
+      console.log(response);
+    }
+  });
+});
+
+$("#revokeHourAccept").click(function(e) {
+  $.ajax({ 
+      url: '/dashboard/' + localStorage.userRole + '/revokeHour',
+      data: {
+        'idPatientHour' : $("#idPatientHourSelected").val()
+      },
+      dataType: 'json',
+      type: 'post',
+      success: function(response) {
+        console.log(response);
+        $(currentDoctor.patientsHours).each(function(index, element){
+          if (element.idHour == response.idHour)
+          {
+            currentDoctor.patientsHours.splice($.inArray(element, currentDoctor.patientsHours),1);
+            return false;
+          }
+        });
+        var view = $('#calendar').fullCalendar('getView');
+        var date = view.intervalStart.utc();
+        renderDay(date, view);
+        $("#revokeHourAccept").modal('hide');
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_SUCCESS,
+          title: 'Hora correctamente eliminada',
+          message: 'La hora fue eliminada correctamente.',
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+        
+      },
+    error: function(response){
+      console.log(response);
+      if(response.responseText == "denied")
+      {  
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_DANGER,
+          title: 'Tenemos un problema',
+          message: 'No se pueden eliminar horas de pacientes que sean de fechas que ya pasaron.',
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
+      }
+    }
+  });
+});
+
+function getExtraHoursFromDay(day){
+  var extra = 0;
+   $.each(currentDoctor.customSchedules, function(key, value){
+    if(value.day == day.utc().format("YYYY-MM-DD"))
+    {
+      extra = value.extraHours;
+      return false;
+    }
+  });
+  return extra;
+}
+
+
+function viewChange(viewName)
+{
+  //Primero revisamos si el doctor trabaja hoy.
+  var dow = $('#calendar').fullCalendar('getDate').format('d');
+  if (dow === 0) dow = 7;
+  var work = false;
+  $.each(currentDoctor.schedules, function(index, value){
+    if (value.dayOfWeek == dow)
+      work = true;
+  });
+    
+  
+  // Luego ocultamos o mostramos
+  if (viewName == "agendaDay" && work)
+    $("#addExtraHourButton").show();
+  else
+    $("#addExtraHourButton").hide();
+}
+function addExtraHour(){
+  $("#addExtraHourModal").modal("show");
+}
+
+$("#addExtraHourAccept").click(function(e) {
+  var currentView = $('#calendar').fullCalendar('getView');
+  if (currentView.name != "agendaDay")
+    return;
+  var currentDate = $('#calendar').fullCalendar('getDate').format('YYYY-MM-DD');
+  $.ajax({ 
+      url: '/dashboard/' + localStorage.userRole + '/addExtraHour',
+      data: {
+        'doctorsRut' : currentDoctor.rut,
+        'day' : currentDate
+      },
+      dataType: 'json',
+      type: 'post',
+      success: function(response) {
+        if (response === false)
+        {
+          BootstrapDialog.show({
+            type: BootstrapDialog.TYPE_DANGER,
+            title: 'No se pueden agregar más horas',
+            message: 'No se pudo agregar la hora ya que esta excedería el día actual y pertenecería al día siguiente.',
+            buttons: [{
+              label: 'Aceptar',
+              cssClass: 'btn-primary',
+              action: function(dialogRef){
+                dialogRef.close();
+              }
+            }]
+          });
+          return;
+        }
+        var foundIt = false;
+        $.each(currentDoctor.customSchedules, function(key, value){
+          // Si el dia ya tiene horas extras, entonces le sumamos una hora extra
+          if(value.day == currentDate)
+          {
+            value.extraHours += 1;
+            foundIt = true;
+            return false; //Salir antes del bucle
+          }
+        });
+        // Si el dia no tenia horas extras, entonces creamos un objeto de hora extra nuevo.
+        if (!foundIt)
+        {
+          var customSchedule = {day: currentDate, extraHours: 1};
+          currentDoctor.customSchedules.push(customSchedule);
+        }
+        onDateChange(currentView);
+      },
+    error: function(response){
+      BootstrapDialog.show({
+        type: BootstrapDialog.TYPE_DANGER,
+        title: 'Tenemos un problema',
+        message: 'Hubo un error y no se pudo agregar la hora extra.',
+        buttons: [{
+          label: 'Aceptar',
+          cssClass: 'btn-primary',
+          action: function(dialogRef){
+            dialogRef.close();
+          }
+        }]
+      });
+      console.log(response);
+    }
+  });
+});

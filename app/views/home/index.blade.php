@@ -1,33 +1,28 @@
 @extends('layouts.default')
-
+@section('title', 'Inicio')
 @section('section')
 <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <h1>Bienvenido!</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-lg" role="button">Learn more &raquo;</a></p>
+        <h1>Bienvenido</h1>
+        <p>iMed es un servicio que te permite mantener todos los datos de tu consulta médica en un solo lugar. Administra tus pacientes, sus citaciones, sus fichas médicas y al personal que trabaja contigo de una manera profesional, fácil y rápida.</p>
+        <p><a class="btn btn-primary btn-lg" role="button">Leer más &raquo;</a></p>
       </div>
     </div>
 
-    <div class="container">
-      <!-- Example row of columns -->
-      <div class="row">
         <div class="col-md-4">
-          <h2>Heading</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+          <h2>Pacientes</h2>
+          <p>Manten todo el historial clínico de tus pacientes en un solo lugar. Cada vez que uno de tus pacientes accede a tu consulta, podrás crear recetas y fichas médicas para accederlas en cualquier momento. </p>
+          <p><a class="btn btn-primary" href="#" role="button">Ver detalles &raquo;</a></p>
         </div>
         <div class="col-md-4">
-          <h2>Heading</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+          <h2>Colaboradores</h2>
+          <p>Asigna colaboradores, como por ejemplo, una secretaria, para que se encargue de administrar tu agenda, asignar horas para tus pacientes y atender tus consultas. </p>
+          <p><a class="btn btn-primary" href="#" role="button">Ver detalles &raquo;</a></p>
        </div>
         <div class="col-md-4">
-          <h2>Heading</h2>
-          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+          <h2>Recetas</h2>
+          <p>Prescribe e imprime recetas médicas, seleccionando cada medicamento desde nuestra base de datos. En ella encontraras información detallada de los medicamentos como su nombre comercial y composición.</p>
+          <p><a class="btn btn-primary" href="#" role="button">Ver detalles &raquo;</a></p>
         </div>
-      </div>
-    </div>
 @stop()

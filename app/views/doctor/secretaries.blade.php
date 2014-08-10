@@ -1,3 +1,5 @@
+@section('title', 'Secretarias')
+
 @section('extra-css')
   {{ HTML::style('assets/css/fullcalendar.css') }}
   {{ HTML::style('assets/css/customTables.css') }}
@@ -5,27 +7,8 @@
 @stop()
 
 @section('section')
-<!--
-    <div class="row">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h4 class="panel-title">
-          <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-            <span class="glyphicon glyphicon-home"></span>
-            Selecciona la consulta que desea administrar
-          </a>
-        </h4>
-      </div>
-      <div id="collapseOne" class="panel-collapse collapse in">
-        <div class="panel-body">
-          <div id="selectHospitalCombo"></div>
-        </div>
-      </div>
-    </div>
-  </div>
--->
-<div class="row">
-    <div class="panel panel-primary">
+
+    <div id="addSecretaryPanel" class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -40,10 +23,9 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="panel panel-primary">
+
+    <div id="listSecretariesPanel" class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -65,7 +47,7 @@
                   <th class="temail">Email</th>
                   <th class="tphone">Teléfono</th>
                   <th class="tcity">Ciudad</th>
-                  <th class="tunassign">Quitar secretaria</th>
+                  <th id="tableOptions" class="tunassign">Opciones</th>
                 </tr>
               </thead>
               <tbody align="center">
@@ -75,8 +57,28 @@
         </div>
       </div>
     </div>
-  </div>
+@stop()
 
+@section('modal')
+<!-- Modal -->
+<div class="modal fade" id="assignSecretaryModal" z-index:-1 role="dialog" aria-labelledby="assignSecretaryModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Asignar secretaria</h4>
+      </div>
+      <div class="modal-body">
+        ¿Está seguro de que desea asociar a usted a la enfermera de rut <label id="rutDialog"></label>?
+      </div>
+      <!-- Panels group -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="assignSecretaryAccept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
 @stop()
 
 @section('extra-js')
@@ -86,5 +88,6 @@
 {{ HTML::script('assets/js/jquery.dataTables.min.js') }}
 {{ HTML::script('assets/js/dataTables.bootstrap.js') }}
 {{ HTML::script('assets/js/secretaries.js') }}
+  {{ HTML::script('assets/js/tours/doctor/secretariesTour.js') }}
 
 @stop()

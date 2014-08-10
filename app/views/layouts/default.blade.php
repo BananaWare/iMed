@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@yield('title')</title>
+    <title>iMed - @yield('title')</title>
     {{ HTML::style('assets/css/bootstrap.min.css') }}
+    {{ HTML::style('assets/css/offcanvas.css') }}
   @if (!Request::is('/'))
     {{ HTML::style('assets/css/magicsuggest-min.css') }}
   @endif
@@ -17,20 +18,29 @@
     <![endif]-->
 </head>
 <body>
-
-  @include('navbars.navBar')
     
+  <div class="container">
+    
+    <div class="col-md-12">
+      @include('navbars.navBar')
+    </div>
+  
+    <div class="col-md-12">
+      @yield('section')
+    </div>
+  
+      
 
-    @yield('section')
-       
-      <hr>
-    @include('footer.footer')
-
-
+    <div class="col-md-12">
+        <hr>
+      @include('footer.footer')
+    </div>
+  </div>
 <!-- scripts -->
 {{ HTML::script('assets/js/jquery-1.11.0.min.js') }}
 {{ HTML::script('assets/js/bootstrap.min.js') }}
   {{ HTML::script('assets/js/jquery.cookie.js') }}
+<!-- Si no estamo en el '/' -->
 @if (!Request::is('/'))
   {{ HTML::script('assets/js/magicsuggest-min.js') }}
   {{ HTML::script('assets/js/hospitalLoadings.js') }}

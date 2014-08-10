@@ -15,6 +15,7 @@ class MedicalHistory extends Eloquent {
   
   public function userInfo()
   {
-    return $this->hasMany('UserInfo', 'Rut')->where('idHospital', '=', $this->idHospital);
+    return $this->hasOne('UserInfo', 'idMedicalSheet');
+    //return $this->belongTo('UserInfo', 'Rut')->where('idHospital', '=', $this->idHospital);
   }
 }

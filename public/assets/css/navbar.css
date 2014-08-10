@@ -31,3 +31,12 @@
 {
   display:none;
 }
+
+.navbar-toggle-left {
+  margin-right: 0;
+  margin-left: 15px
+}
+
+.navbar {
+    border-radius: 4px;
+}

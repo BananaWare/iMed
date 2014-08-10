@@ -1,55 +1,71 @@
 var contact = $(".contact-errors");
 var personal = $(".personal-errors");
 function createPatient(fromPatientsView) {
+  var values = $('.birthdate').val().split("/");
+  var birthdate = values[2] + '-' +  values[1] + '-' + values[0];
   $.ajax({
     url: "/dashboard/" + localStorage.userRole + "/createPatient",
     type: "POST",
     data: {'rut': $('.rut').val(), 'name': $('.name').val(), 'lastname': $('.lastname').val(),
-           'birthdate': $('.birthdate').val(), 'email': $('.email').val(), 'phone': $('.phone').val(),
-           'city': $('.city').val(), 'address': $('.address').val(), 'gender': $('input[name=gender]:checked').val(),
-           'idHospital': hospitalSelected.idHospital},
-    success: function(xhr){
+           'birthdate': birthdate, 'email': $('.email').val(), 'phone': $('.phone').val(),
+           'city': $('.city').val(), 'address': $('.address').val(), 'gender': 
+           $('input[name=gender]:checked').val(),
+           'idHospital': hospital.idHospital}
+  })
+  .done(function(xhr){
       console.log(xhr);
-      //alert('asigno');
       try
       {
         var newPatient = $.parseJSON(xhr);
         if (fromPatientsView === true)
         {
-          $.each(hospitals, function(key, hospital){
-            if (hospital.idHospital == hospitalSelected.idHospital)
-            {
-              if (typeof hospitals[key].patients === "undefined")
-              {
-                hospitals[key].patients = [];
-                hospitalSelected.patients = [];
-              }
-              hospitals[key].patients.push(newPatient);
-              selectHospitalComboBox.magicSuggest().setData(hospitals);
-              return false; // nos salimos antes del bucle each
-            }
-          });
+          if (typeof hospital.patients === "undefined")
+            hospital.patients = []; 
+          hospital.patients.push(newPatient);
+          
           loadPatientsTable();
           patientsRutInput.val('');
         }
         else
         {
-          hospitalWithPatients.patients.push(newPatient);
-          patientsMagicSuggest.setData(hospitalWithPatients.patients);
+          hospital.patients.push(newPatient);
+          patientsMagicSuggest.setData(hospital.patients);
           patientsMagicSuggest.setSelection(newPatient);
         }
         $('#createPatientModal').modal('hide');
+        BootstrapDialog.show({
+          type: BootstrapDialog.TYPE_SUCCESS,
+          title: 'Enhorabuena',
+          message: 'El nuevo paciente se ha añadido correctamente.',
+          buttons: [{
+            label: 'Aceptar',
+            cssClass: 'btn-primary',
+            action: function(dialogRef){
+              dialogRef.close();
+            }
+          }]
+        });
       }
       catch(err){
         checkAttributes(xhr);
       }
-
-    },
-    error: function($sss){
+    })
+    .fail(function($sss){
       console.log($sss);
-      alert('error');
-    }
-  });
+      $('#createPatientModal').modal('hide');
+      BootstrapDialog.show({
+        type: BootstrapDialog.TYPE_DANGER,
+        title: 'Tenemos un problema',
+        message: 'Un problema ha ocurrido al agregar pacientes, recargue la página e inténtelo nuevamente.',
+        buttons: [{
+          label: 'Aceptar',
+          cssClass: 'btn-primary',
+          action: function(dialogRef){
+            dialogRef.close();
+          }
+        }]
+      });
+    });
 }
 
 checkAttributes = function(errors)
@@ -91,9 +107,12 @@ $('#createPatientModal').on('shown.bs.modal', function (e) {
   $('.rut').val($('#patientsRutInput').val());
   
   $('.name').val(''); $('.lastname').val('');
-  $('.birthdate').val(''); $('.email').val(''); $('.phone').val('');
-  $('.city').val(''); $('.address').val(''); $('input[name=gender]:checked').removeAttr("checked");
-  $(':input:checked').parent('.btn').removeClass('active');
+  $('.email').val(''); $('.phone').val('');
+  $('.city').val(''); $('.address').val(''); 
+  $('.birthdate').val(''); 
+  $(".btn-group .btn").removeClass("active");
+  $('input[name=gender]:checked').removeAttr("checked");
+//  $(':input:checked').parent('.btn').removeClass('active');
   
   contact.empty();
   contact.removeClass("alert alert-danger");

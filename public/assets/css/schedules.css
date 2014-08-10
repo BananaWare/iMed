@@ -1,0 +1,7 @@
+.dayOfWeek{
+  width: 20%;
+  min-width: 150px;
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 25px;
+}

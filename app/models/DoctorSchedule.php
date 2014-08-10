@@ -12,7 +12,7 @@ class DoctorSchedule extends Eloquent {
 	 */
 	protected $table = 'doctors_schedules';
   protected $primaryKey = 'idDoctorSchedule';
-  //protected $appends = array('NumberDayOfWeek');  
+  protected $appends = array('nameDayOfWeek');
   
   public function doctor()
   {
@@ -21,6 +21,12 @@ class DoctorSchedule extends Eloquent {
   
   public function hospital()
   {
-    return $this->belongsTo('User', 'idHospital', 'idHospital');
+    return $this->belongsTo('Hospital', 'idHospital', 'idHospital');
+  }
+  
+  public function getNameDayOfWeekAttribute()
+  {
+    $names = array("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo");
+    return $names[$this->dayOfWeek - 1];
   }
 }

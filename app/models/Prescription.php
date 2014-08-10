@@ -21,6 +21,12 @@ class Prescription extends Eloquent {
   
   public function medicalSheet()
   {
-    return $this->belongsTo('MedicalSheet', 'idPrescription');
+    
+    return $this->belongsTo('MedicalSheet', 'idSheet', 'idSheet');
+  }
+  
+  public function drugsPrescriptions()
+  {
+    return $this->hasMany('DrugPrescription', 'idPrescription', 'idPrescription');
   }
 }

@@ -21,16 +21,7 @@ class HomeController extends BaseController {
       JavaScript::put([
         'hospitals' => Auth::user()->hospitals
       ]);
-    
-    /*
-    if (Session::get('idHospitalSelected') == null)
-    {
-      Session::set('idHospitalSelected', Auth::user()->hospitals[0])->idHospital;
-    }
-    */
-    
-    
-    
+
     $this->layout->content = View::make('home.index');
 	}
 }
