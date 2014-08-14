@@ -26,8 +26,8 @@ return array(
 	|
 	*/
 
-	//public' => __DIR__.'/../public',
-  'public' => __DIR__.'/../wwwroot',
+	public' => __DIR__.'/../public',
+  //'public' => __DIR__.'/../wwwroot',
 
 	/*
 	|--------------------------------------------------------------------------
