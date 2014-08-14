@@ -196,15 +196,15 @@
           </div>
           
           <div class="col-md-12">
-            <div class="panel panel-primary col-md-12">
+            <div class="panel panel-primary">
               <div class="panel-heading">
                 <h4 class="panel-title">
                   <span class="glyphicon glyphicon-list-alt"></span>
                   <strong>Receta</strong>
-                  <a>
-                    <a id="printPresciption" class="pull-right glyphicon glyphicon-print">
-                    </a>
-                  </a>            
+                  <button id="printPrescription" class="btn btn-primary pull-right">
+                    <i class="pull-right glyphicon glyphicon-print">
+                    </i>
+                  </button>            
                 </h4>
               </div>
               <div class="panel-body">
@@ -383,15 +383,11 @@
           </div>
           
           <div class="col-md-12">
-            <div class="panel panel-primary col-md-12">
+            <div class="panel panel-primary">
               <div class="panel-heading">
                 <h4 class="panel-title">
                   <span class="glyphicon glyphicon-list-alt"></span>
-                  <strong>Receta</strong>
-                  <a>
-                    <a id="printPresciption" class="pull-right glyphicon glyphicon-print">
-                    </a>
-                  </a>            
+                  <strong>Receta</strong>            
                 </h4>
               </div>
               <div class="panel-body">

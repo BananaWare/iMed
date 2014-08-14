@@ -50,8 +50,8 @@ Route::filter('secretary', function()
 Route::filter('pre-secretary', function()
 {
   if (Auth::guest() || !Auth::user()->isSecretaryOn(Session::get('idHospitalSelected')) 
-      || isset(Auth::user()->name))
-    return Redirect::guest('/dashboard')->with('msg', 'No tienes permiso para estar aquí');;
+      || (isset(Auth::user()->name) && Auth::user()->name != ""))
+    return Redirect::guest('/dashboard')->with('msg', 'No tienes permiso para estar aquí');
 });
 
 Route::filter('doctor', function()

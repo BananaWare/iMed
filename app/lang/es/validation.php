@@ -59,7 +59,7 @@ return array(
 		"file"    => "El campo :attribute must be :size kilobyte.",
 		"string"  => "El campo :attribute must be :size caracteres.",
 	),
-	"unique"         => "El campo :attribute ya ha sido tomado.",
+	"unique"         => "El :attribute ya existe en la base de datos.",
 	"url"            => "El formato de :attribute es invalido.",
 
 	/*

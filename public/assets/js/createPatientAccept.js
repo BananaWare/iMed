@@ -104,7 +104,12 @@ checkAttributes = function(errors)
 }
 $('#createPatientModal').on('shown.bs.modal', function (e) {
   $(".rut").prop('disabled', false);
-  $('.rut').val($('#patientsRutInput').val());
+  
+  // lineas en testing
+  if (typeof patientsMagicSuggest != 'undefined')
+    $(".rut").val(patientsMagicSuggest.getRawValue());
+  else
+    $('.rut').val($('#patientsRutInput').val());
   
   $('.name').val(''); $('.lastname').val('');
   $('.email').val(''); $('.phone').val('');

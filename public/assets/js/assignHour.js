@@ -33,7 +33,8 @@ $(document).ready(function() {
     valueField: 'rut',
     placeholder: 'Escriba o seleccione un paciente',
     noSuggestionText: 'No hay resultados para su búsqueda',
-    allowFreeEntries: false
+    allowFreeEntries: false,
+    typeDelay: 100,
   }); 
   if (role == "secretary")
   {
@@ -89,6 +90,8 @@ $(document).ready(function() {
   if (role == "doctor")
     makeCalendar();
   $('.dp').datepicker();
+  
+  $(patientsMagicSuggest).on('keyup', keyUpPatientsMagicSuggest);
 });
 
 var patientsComboSelectionRenderer = function (a){
@@ -113,16 +116,17 @@ function getEventsForDay(date, patientsHours)
   var dayEvents = [];
     $.each(patientsHours, function(key, value){
     var startDate = moment(value.dateTimeAssign);
-    var endDate = moment(value.dateTimeEnd);     
+    var endDate = moment(value.dateTimeEnd);
+     
     if (
-      (startDate.utc().format("YYYY-MM-DD") == date.utc().format("YYYY-MM-DD")) 
-      && (endDate.utc().format("YYYY-MM-DD") == date.utc().format("YYYY-MM-DD"))
+      (startDate.format("YYYY-MM-DD") == date.format("YYYY-MM-DD")) 
+      && (endDate.format("YYYY-MM-DD") == date.format("YYYY-MM-DD"))
     )
-    {
+    { 
       var backgroundColor = value.confirmed ? '#329232' : '#C97D12';
       var confirmedText = value.confirmed ? 'Confirmada' : 'Por confirmar';
       var tempEvent = {
-        title: 'Hora asignada - Estado: ' + confirmedText + ' - Paciente: ' + value.patient.fullName + " - RUT: " +
+        title: 'Estado: ' + confirmedText + ' - Paciente: ' + value.patient.fullName + " - RUT: " +
           value.patient.rutFormated + " - Asignado por: " + value.assigner.fullName,
         start:  value.dateTimeAssign,
         end: value.dateTimeEnd,
@@ -190,6 +194,7 @@ function renderDay(date, view)
   }
 
   dayEvents = getEventsForDay(date, selectedDoctor.patientsHours);
+  
   changeViewAndSource(dayEvents, selectedDaySchedule, date, "agendaDay");
 }
 
@@ -287,6 +292,8 @@ function getAvailableHoursEvents()
   usedBlocksPerDay[currentDatesInMemory.Months.endMonth] = [];
   //$(currentDoctor.schedules).each(function(key,value) {
   $.each(currentDoctor.schedules, function(key,value) {
+    if(value.dayOfWeek == 7)
+      value.dayOfWeek = 0;
     
     var startHour = moment(value.startHour, "HH:mm:ss");
 
@@ -524,7 +531,7 @@ $("#assignHourAccept").click(function(e) {
         BootstrapDialog.show({
           type: BootstrapDialog.TYPE_DANGER,
           title: 'Tenemos un problema',
-          message: "No se pueden asignar al paciente una hora que ya pasó.",
+          message: "No se pueden asignar horas anteriores a la fecha y hora actual.",
           buttons: [{
             label: 'Aceptar',
             cssClass: 'btn-primary',
@@ -866,3 +873,19 @@ $("#addExtraHourAccept").click(function(e) {
     }
   });
 });
+
+function keyUpPatientsMagicSuggest(e, m, v)
+{
+  var foundIt = false;
+  if (v.keyCode == 13) {
+    $.each(hospital.patients, function(index, patient){
+      if (patient.fullNameRut.toLowerCase().indexOf(patientsMagicSuggest.getRawValue().toLowerCase()) >= 0)
+      {
+        foundIt = true;
+        return false; // break
+      }
+    });
+    if (!foundIt)
+    $("#createPatientModal").modal('show'); 
+  }
+}

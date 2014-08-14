@@ -236,6 +236,12 @@ class SecretaryController extends BaseController {
     $userInfo->rut = $user->rut;
     $userInfo->dv = $user->dv;
     $userInfo->idHospital = Input::get('idHospital');
+    
+    $userInfoValidator = Validator::make(array('rut' => $userInfo->rut), 
+                                         array('rut' => 'unique:users_info,rut,NULL,rut,idHospital,' . $userInfo->idHospital));
+    if ($userInfoValidator->fails())
+      return $userInfoValidator;
+    
     return $setUserWithInputs;
   }
  
@@ -296,11 +302,11 @@ class SecretaryController extends BaseController {
     
     $data = Input::all();
     $rules = array(
-      'name' => 'required',
-      'lastname' => 'required|max:15',
+      'name' => 'required|max:40',
+      'lastname' => 'required|max:40',
       'gender' => 'required|in:male,female',
       'birthdate' => 'date_format:"Y-m-d"',
-      'email' => 'email',
+      'email' => 'email|max:40',
       'phone' => 'numeric',
       'idHospital' => 'numeric'
     );
@@ -472,7 +478,7 @@ class SecretaryController extends BaseController {
   {
     $hospital = Hospital::find(Session::get('idHospitalSelected'));
     $completeHospital = $hospital->toArray();
-    
+    $completeHospital['patients'] = array();
     foreach($hospital->patientsInfos as $patientInfo)
     {
       $completePatient = $patientInfo->user->toArray();

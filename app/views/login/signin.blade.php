@@ -25,7 +25,7 @@
                 <div class="form-group">
               @endif
 
-                  <input name="username" type="text" placeholder="RUT xxxxxxxx-x" class="form-control" required="required" pattern="\b\d{1,8}\-[K|k|0-9]" title="Por ejemplo 12123123-3">
+                  <input name="username" type="text" placeholder="RUT xxxxxxxx-x" class="form-control" required="required" pattern="\b\d{1,12}\-[K|k|0-9]" title="Por ejemplo 12123123-3">
 
               </div>
               @if(Session::has('error_message'))

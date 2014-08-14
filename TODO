@@ -1,19 +1,23 @@
 ** To do:
 
-
 En el calendario de asignar hora, falta una imagen de cargando al cambiar los meses.
 Comprobar que sucede al crear un paciente cuyo rut ya exista, notificar de alguna manera a la secretaria de esto.
-
+Falta mensaje de contraseña incorrecta.
+Los input del horario son poco intuitivos y la lógica tampoco.
 En el calendario de asignar hora, las horas que no tengan minuto deberían aparecer en formato correcto: ejemplo 15 a 14:30 -> 15:00 a 14:30
 Mejorar la estética del agregar nuevo remedio en el modal recetar.
-Los mensajes de tour aparecen acada rato.
+Los mensajes de tour aparecen a cada rato.
+Si un usuario tiene seleccionado un hospital, luego desloguea y loguea un usuario donde no existe ese hospital lo tendrá de todas formas.
 
+Calendario de selección de fecha está en inglés.
 Encontrar un nombre no usado para el sistema.
 
 
 
 
 ** Done:
+Al asignar hora se debería poder ingresar el rut y que el sistema solo detecte si es usuario nuevo o antiguo.
+
 Los nombres de usuarios ahora siempre comenzarán con mayúscula.
 El buscador de magicSuggest ahora permite buscar por nombre, apellido, rut y rut formateado.
 Arreglar los combobox de pacientes, doctores, etc. En ellos aparece una imagen que no existe y comprobar sobre que campo se busca.

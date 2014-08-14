@@ -22,6 +22,11 @@ class UserRoleTableSeeder extends Seeder
       'idHospital' => '1'
     ));
     UserRole::create(array(
+      'rut' => '121212',
+      'role' => 'doctor',
+      'idHospital' => '2'
+    ));
+    UserRole::create(array(
       'rut' => '311331',
       'role' => 'secretary',
       'idHospital' => '1'

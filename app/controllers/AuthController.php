@@ -11,8 +11,8 @@ class AuthController extends BaseController {
     {
       $data = Input::all();
       $rules = array(
-        'username' => array('required', 'regex:/\b\d{1,9}\-(K|k|\d)/'),
-        'password' => 'required|max:15'
+        'username' => array('required', 'regex:/\b\d{1,11}\-(K|k|\d)/'),
+        'password' => 'required|max:20'
       );
   
       // Create a new validator instance.

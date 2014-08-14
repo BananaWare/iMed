@@ -1,4 +1,4 @@
-<div class="modal fade" id="createPatientModal" role="dialog" aria-labelledby="createPatientModal" aria-hidden="true">
+<div class="modal fade" id="createPatientModal" role="dialog" aria-labelledby="createPatientModal" aria-hidden="true" tabindex='-1'>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

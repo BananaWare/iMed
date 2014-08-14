@@ -1,7 +1,7 @@
 // Document ready
 var secretarysRutInput = $('#secretarysRutInput');
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
-const PLACEHOLDER_HOSPITAL = 'Ingrese un rut y presione enter para crear una secretaria. (Ejemplo: 12345678-9 o 12.345.678-9)';
+const PLACEHOLDER_HOSPITAL = 'Ingrese un rut y presione enter para asignar una secretaria. (Ejemplo: 12345678-9 o 12.345.678-9)';
 var dataTable;
 
 $(function() {
@@ -253,7 +253,7 @@ $("#assignSecretaryAccept").click(function(e) {
         BootstrapDialog.show({
           type: BootstrapDialog.TYPE_SUCCESS,
           title: 'Enhorabuena',
-          message: "La secretaria se ha añadido correctamente.<br /><br /> Ahora la secretaria puede iniciar sesión utilizando:<br /><br /><b>Nombre de usuario:</b> " + newSecretary.rut + "-" + newSecretary.dv +"<br /><b>Contraseña:</b> " + newSecretary.rut + "<br /><br />Cuando inicie sesión deberá completar sus datos y cambiar su contraseña.",
+          message: "La secretaria se ha añadido correctamente.<br /><br /> Ahora la secretaria puede iniciar sesión utilizando:<br /><br /><b>Rut:</b> " + newSecretary.rut + "-" + newSecretary.dv +"<br /><b>Contraseña:</b> " + newSecretary.rut + "<br /><br />Cuando inicie sesión deberá completar sus datos y cambiar su contraseña.",
           buttons: [{
             label: 'Aceptar',
             cssClass: 'btn-primary',

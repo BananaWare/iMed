@@ -24,6 +24,11 @@ class UserInfo extends Eloquent {
     return $this->hasMany('UserRole', 'rut');
   }
   
+  public function setCityAttribute($value)
+  {
+    $this->attributes['city'] = ucwords(strtolower($value));
+  }
+  
   public function medicalHistory()
   {
     return $this->belongsTo('MedicalHistory', 'idMedicalHistory', 'idMedicalHistory');

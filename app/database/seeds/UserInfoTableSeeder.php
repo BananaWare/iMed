@@ -33,6 +33,15 @@ class UserInfoTableSeeder extends Seeder
       'address' => 'Nueva Aurora 432'
     ));
     UserInfo::create(array(
+      'rut' => '121212',
+      'dv' => '1',
+      'email' => 'donUno.Dos@yahoo.com',
+      'phone'     => '11221122',
+      'idHospital' => '2',
+      'city' => 'Quilpue',
+      'address' => 'Nueva Aurora 432'
+    ));
+    UserInfo::create(array(
       'rut' => '311331',
       'dv' => '3',
       'email' => 'marcela.s@yahoo.es',

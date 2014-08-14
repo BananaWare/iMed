@@ -166,7 +166,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
   // Atributo solamente necesario para buscar en el magicSuggest por nombre y rut debido a que el plugin no acepta otra forma.
   public function getFullNameRutAttribute()
   {
-    $nameWithoutAccents = preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);~i', '$1', htmlentities($this->fullName, ENT_COMPAT, 'UTF-8'));
+    $nameWithoutAccents = preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|uml|caron);~i', '$1', htmlentities($this->fullName, ENT_COMPAT, 'UTF-8'));
+    $nameWithoutAccents = preg_replace('/&ntilde;/', 'ñ', $nameWithoutAccents);
+    $nameWithoutAccents = preg_replace('/&Ntilde;/', 'Ñ', $nameWithoutAccents);
     return $nameWithoutAccents . ' ' . $this->rut . '-' . $this->dv . ' ' . $this->rutFormated;
   }
   

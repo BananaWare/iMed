@@ -20,7 +20,14 @@
       </div>
       <div id="collapseOne" class="panel-collapse collapse in">
         <div class="panel-body">
-           <input id="patientsRutInput" type="text" class="form-control"/>
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-1">Rut </label>
+              <div class="col-sm-11">
+                 <input id="patientsRutInput" type="text" class="form-control"/>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -29,7 +36,7 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-            <span class="glyphicon glyphicon-home"></span>
+            <span class="glyphicon glyphicon-user"></span>
             Lista de pacientes
           </a>
         </h4>

@@ -12,14 +12,21 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-            <span class="glyphicon glyphicon-home"></span>
+            <span class="glyphicon glyphicon-plus"></span>
             Activar secretaria
           </a>
         </h4>
       </div>
       <div id="collapseOne" class="panel-collapse collapse in">
         <div class="panel-body">
-           <input id="secretarysRutInput" type="text" class="form-control"/>
+          <div class="form-horizontal">
+            <div class="form-group">
+                <label class="control-label col-sm-1">Rut </label>
+              <div class="col-sm-11">
+                <input id="secretarysRutInput" type="text" class="form-control"/>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -29,7 +36,7 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-            <span class="glyphicon glyphicon-home"></span>
+            <span class="glyphicon glyphicon-list"></span>
             Lista de sus secretarias
           </a>
         </h4>
@@ -38,7 +45,7 @@
         <div class="panel-body">
           <div id="table-responsive" class="table-responsive">
             <table class="table table-bordered table-striped table-hover" id="secretariesTable">
-              <!-- .danger si una enfermera esta deshabilitada -->
+              <!-- .danger si una secretaria esta deshabilitada -->
               <thead align="center">
                 <tr>
                   <th class="tname">Nombre</th>
@@ -69,7 +76,7 @@
         <h4 class="modal-title" id="myModalLabel">Asignar secretaria</h4>
       </div>
       <div class="modal-body">
-        ¿Está seguro de que desea asociar a usted a la enfermera de rut <label id="rutDialog"></label>?
+        ¿Está seguro de que desea asociar a usted a la secretaria de rut <label id="rutDialog"></label>?
       </div>
       <!-- Panels group -->
       <div class="modal-footer">

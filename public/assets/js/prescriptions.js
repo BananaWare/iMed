@@ -64,9 +64,9 @@ $(function() {
   patientsMagicSuggest.enable();
   $(patientsMagicSuggest).on('selectionchange', patientsComboSelectionChange);
   
-  $("#printPresciption").click( printPresciptionClickEvent );
+  $("#printPrescription").click( printPresciptionClickEvent );
 });
-var printPresciptionClickEvent = function() {
+function printPresciptionClickEvent () {
       var pdf = new jsPDF('p', 'pt', 'letter');
 
     source = $('#prescriptionTable')[0];
