@@ -4,55 +4,70 @@ var patientsRutInput = $('#patientsRutInput');
 const PLACEHOLDER_NO_HOSPITAL = "Debe seleccionar un hospital primero.";
 const PLACEHOLDER_HOSPITAL = 'Ingrese un rut y presione enter para crear un paciente. (Ejemplo: 12345678-9 o 12.345.678-9)';
 var dataTable;
-
+//var hospital;
 // Document ready
 $(function() {
-  dataTable = $('#patientsTable').dataTable({
-    "oLanguage": {
-      "sProcessing":     "Procesando...",
-      "sLengthMenu":     "Mostrar _MENU_ registros",
-      "sZeroRecords":    "No se encontraron resultados",
-      "sEmptyTable":     "Ningún dato disponible en esta tabla",
-      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
-      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
-      "sInfoPostFix":    "",
-      "sSearch":         "Buscar:",
-      "sUrl":            "",
-      "sInfoThousands":  ",",
-      "sLoadingRecords": "Cargando...",
-      "oPaginate": {
-        "sFirst":    "Primero",
-        "sLast":     "Último",
-        "sNext":     "Siguiente",
-        "sPrevious": "Anterior"
-      }
-    },
-    "oAria": {
-      "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
-      "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-    }
-  });  
-  loadPatientsTable();
-  /*$(".dateRangePicker").daterangepicker({
-    format: 'DD-MM-YYYY',
-    singleDatePicker: true,
-    showDropdowns: true,
-    startDate: moment(),
-    maxDate: moment()
-  });*/
   /*
-  $('.dp').datepicker({
-    
-    format:'dd-mm-yyyy',
-    weekStart: 1,
-    viewMode: 'years',
-    minViewMode: 'days'
-    
-  });*/
-  $('.dp').datepicker();
-  //$('#birthdateInput').datepicker();
+  $.ajax({
+    url: "/dashboard/" + localStorage.userRole + "/getPatientsFull",
+    type: "POST",
+    success: function(xhr){
+      console.log(xhr);
+      
+      hospital = xhr;
+      */
+      dataTable = $('#patientsTable').dataTable({
+        "oLanguage": {
+          "sProcessing":     "Procesando...",
+          "sLengthMenu":     "Mostrar _MENU_ registros",
+          "sZeroRecords":    "No se encontraron resultados",
+          "sEmptyTable":     "Ningún dato disponible en esta tabla",
+          "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+          "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+          "sInfoPostFix":    "",
+          "sSearch":         "Buscar:",
+          "sUrl":            "",
+          "sInfoThousands":  ",",
+          "sLoadingRecords": "Cargando...",
+          "oPaginate": {
+            "sFirst":    "Primero",
+            "sLast":     "Último",
+            "sNext":     "Siguiente",
+            "sPrevious": "Anterior"
+          }
+        },
+        "oAria": {
+          "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+          "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+        }
+      });  
+      loadPatientsTable();
+      /*$(".dateRangePicker").daterangepicker({
+        format: 'DD-MM-YYYY',
+        singleDatePicker: true,
+        showDropdowns: true,
+        startDate: moment(),
+        maxDate: moment()
+      });*/
+      /*
+      $('.dp').datepicker({
 
+        format:'dd-mm-yyyy',
+        weekStart: 1,
+        viewMode: 'years',
+        minViewMode: 'days'
+
+      });*/
+      $('.dp').datepicker();
+      //$('#birthdateInput').datepicker();
+/*
+    },
+    error: function(xhr){
+      console.log(xhr);
+    }
+  });
+*/
 });
 
 var eventClickEvent = function(calEvent, jsEvent, view) {

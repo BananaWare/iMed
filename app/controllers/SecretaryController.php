@@ -19,7 +19,6 @@ class SecretaryController extends BaseController {
     JavaScript::put([
       'hospitals' => Auth::user()->hospitals
     ]);*/
-    //var_dump(Auth::user()->hospitals->toArray());
     // If she is a new secretary or it is her first login
     if (!isset(Auth::user()->name) || !isset(Auth::user()->lastname) || 
         !isset(Auth::user()->gender) || !isset(Auth::user()->birthdate) )
@@ -459,9 +458,7 @@ class SecretaryController extends BaseController {
   {
     JavaScript::put([
       'hospital' => $this->getPatientsFullFromHospitalSelected(false)
-    ]);    
-    
-    
+    ]);
     if (get_class($this) == "SecretaryController")
       $this->layout->function = View::make('dashboard.secretarySidebar');
     else if (get_class($this) == "DoctorController")
@@ -472,7 +469,7 @@ class SecretaryController extends BaseController {
   
   public function doGetPatientsFromHospitalSelected()
   {
-    return getPatientsFullFromHospitalSelected(false);
+    return $this->getPatientsFullFromHospitalSelected(false);
   }
  
   protected function getPatientsFullFromHospitalSelected($withPrescriptions, $doctorsRut = null)

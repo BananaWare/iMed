@@ -6,10 +6,11 @@ class DoctorController extends SecretaryController {
   
   public function index()
   {
+    /*
     JavaScript::put([
       'hospitals' => Auth::user()->hospitals
     ]);
-    
+    */
     $this->layout->function = View::make('dashboard.doctorSidebar');
     $this->layout->section = View::make('doctor.dashboard');
   }

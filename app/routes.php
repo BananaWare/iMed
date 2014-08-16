@@ -66,6 +66,10 @@ Route::get('/dashboard/doctor/patients', ['uses' => 'DoctorController@showPatien
 
 Route::get('/dashboard/secretary/patients', ['uses' => 'SecretaryController@showPatients', 'before' => 'secretary']);
 
+Route::post('/dashboard/secretary/getPatientsFull', ['uses' => 'SecretaryController@doGetPatientsFromHospitalSelected', 'before' => 'secretary']);
+
+Route::post('/dashboard/doctor/getPatientsFull', ['uses' => 'DoctorController@doGetPatientsFromHospitalSelected', 'before' => 'doctor']);
+
 Route::post('/dashboard/doctor/refreshHoursForCalendar', ['uses' => 'DoctorController@doRefreshHoursForCalendar', 'before' => 'doctor']);
 
 Route::post('/dashboard/doctor/changeSchedules', ['uses' => 'DoctorController@doChangeSchedules', 'before' => 'doctor']);
