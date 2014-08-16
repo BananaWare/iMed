@@ -72,8 +72,7 @@ class SecretaryController extends BaseController {
     
     $userInfo->user = null;
     $user['userInfo'] = $userInfo->toArray();
-    
-    return $user->toJson();
+    return htmlentities( $user->toJson(), ENT_NOQUOTES, 'utf-8', FALSE);
   }
   
   public function showAssignHourFromHospitalSelected()
@@ -305,7 +304,7 @@ class SecretaryController extends BaseController {
       'name' => 'required|max:40',
       'lastname' => 'required|max:40',
       'gender' => 'required|in:male,female',
-      'birthdate' => 'date_format:"Y-m-d"',
+      'birthdate' => 'required|date_format:"Y-m-d"',
       'email' => 'email|max:40',
       'phone' => 'numeric',
       'idHospital' => 'numeric'

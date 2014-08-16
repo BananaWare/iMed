@@ -8,9 +8,10 @@ En el calendario de asignar hora, las horas que no tengan minuto deberían apare
 Mejorar la estética del agregar nuevo remedio en el modal recetar.
 Los mensajes de tour aparecen a cada rato.
 Si un usuario tiene seleccionado un hospital, luego desloguea y loguea un usuario donde no existe ese hospital lo tendrá de todas formas.
-
+Agregar alerta de que quedan pocos días de suscripción.
 Calendario de selección de fecha está en inglés.
 Encontrar un nombre no usado para el sistema.
+Hacer menu para superadmin.
 
 
 
