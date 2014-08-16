@@ -180,7 +180,8 @@ class DoctorController extends SecretaryController {
     // Envíamos también la hora del servidor
     JavaScript::put([
       'hospital' => $this->getPatientsFullFromHospitalSelected(true, Auth::user()->rut),
-      'dateTimeNow' => $date->format('Y-m-d H:i:s')
+      'dateTimeNow' => $date->format('Y-m-d H:i:s'),
+      'user' => Auth::user()
     ]);
     
     $this->layout->function = View::make('dashboard.doctorSidebar');  

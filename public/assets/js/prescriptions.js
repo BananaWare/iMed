@@ -88,12 +88,12 @@ function printPresciptionClickEvent () {
   
 
     pdf.text(35, 35, "Datos del profesional \n");  
-    pdf.text(35, 65, "Doctor: " + "Alfredo Gallardo");
+    pdf.text(35, 65, "Doctor: " + user.fullName + "  " + user.rutFormated);
     pdf.text(35, 85, "Consulta: " + "Consulta Privada");
   
     pdf.text(35, 135, "Datos del paciente");  
-    pdf.text(35, 165, "Nombre: " + "Elpa Ciente");
-    pdf.text(35, 185, "Rut: " + "6.148.683-7");
+    pdf.text(35, 165, "Nombre: " + patientSelected.fullName);
+    pdf.text(35, 185, "Rut: " + patientSelected.rutFormatted);
   
     pdf.text(35, 235, "Receta");
     // all coords and widths are in jsPDF instance's declared units
