@@ -281,7 +281,7 @@ class SecretaryController extends BaseController {
       
       return $setUserWithInputsValidator->messages();
     }
-    $user->password = Hash::make(Input::get("password"));
+    //$user->password = Hash::make(Input::get("password"));
     $user->save();
     $userInfo->save();
     
