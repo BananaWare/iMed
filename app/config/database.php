@@ -26,8 +26,9 @@ return array(
 	|
 	*/
 
-	'default' => 'mysql',
-
+	'default' => 'mysql_azure',
+//'default' => 'mysql',
+  
 	/*
 	|--------------------------------------------------------------------------
 	| Database Connections
@@ -51,17 +52,17 @@ return array(
 			'database' => __DIR__.'/../database/production.sqlite',
 			'prefix'   => '',
 		),
-    /*
-    'mysql' => array(
+    
+    'mysql_azure' => array(
 			'driver'    => 'mysql',
 			'host'      => 'us-cdbr-azure-central-a.cloudapp.net',
-			'database'  => 'doctAhs5sbiTXFhL',
-			'username'  => 'b2abd79c883322',
-			'password'  => '4dd7e5ae',
+			'database'  => 'test40AlJWdZfOHA',
+			'username'  => 'b072945160c94c',
+			'password'  => '1c2252d1',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
-		),*/
+		),
 
 		'mysql' => array(
 			'driver'    => 'mysql',
