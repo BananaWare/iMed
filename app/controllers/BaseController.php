@@ -32,10 +32,10 @@ class BaseController extends Controller {
     }
     return $r;
   }
-  
+  /*
   public function getHospitals()
   {
      return Auth::user()->hospitals->toJson();
   }
-  
+  */
 }
