@@ -15,10 +15,11 @@ class SecretaryController extends BaseController {
   );
   
   public function index()
-  {
+  {/*
     JavaScript::put([
       'hospitals' => Auth::user()->hospitals
-    ]);
+    ]);*/
+    //var_dump(Auth::user()->hospitals->toArray());
     // If she is a new secretary or it is her first login
     if (!isset(Auth::user()->name) || !isset(Auth::user()->lastname) || 
         !isset(Auth::user()->gender) || !isset(Auth::user()->birthdate) )

@@ -140,4 +140,5 @@ Route::get('/dashboard/secretary/noSuscription', ['uses' => 'SecretaryController
 
 Route::post('/dashboard/doctor/savePrescriptionAndMedicalSheet', ['uses' => 'DoctorController@doSavePrescriptionAndMedicalSheet', 'before' => 'doctor']);
 
+Route::post('/dashboard/getHospitals', ['uses' => 'BaseController@getHospitals']);
 Route::post('/dashboard/selectHospital', ['uses' => 'BaseController@selectHospital', 'before' => 'auth']);

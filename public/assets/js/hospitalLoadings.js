@@ -2,14 +2,25 @@ var hospitalMagicSuggest;
 var selectHospitalComboBox = $('#selectHospitalComboBox');
 var hospitalSelected;
 var primeraCarga = true;
+var hospitals;
 $(function() {
+  $.ajax({
+    url: "/dashboard/getHospitals",
+    type: "POST",
+    success: function(xhr){
+      console.log(xhr);
+      hospitals = JSON.parse(xhr);
+      localStorage.setItem('hospitals', xhr);
+      
+      
+  /*
+  if (typeof hospitals === "undefined") // test, borrar despues
+    return;
   if (typeof hospitals !== "undefined")
-    //$.cookie('hospitals', JSON.stringify(hospitals));
     localStorage.setItem('hospitals', JSON.stringify(hospitals));
   else
     hospitals = JSON.parse(localStorage.hospitals);
-    //hospitals = JSON.parse($.cookie('hospitals'));
-  
+  */
   var idSelected = [];
   if (localStorage.idHospitalSelected !== undefined)
   {
@@ -45,6 +56,8 @@ $(function() {
   $(hospitalMagicSuggest).on('selectionchange', hospitalsComboSelectionChange);
   
   hospitalMagicSuggest.setSelection(hospitalSelected);
+    }
+  });
 });
 var hospitalsComboSelectionRenderer = function (a){
   return a.name;
