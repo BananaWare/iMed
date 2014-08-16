@@ -266,7 +266,7 @@ $( "#modifyPatientAccept" ).click(function(e) {
   var birthdate = values[2] + '-' +  values[1] + '-' + values[0];
   
   $.ajax({
-    url: "/dashboard/doctor/modifyPatient",
+    url: "/dashboard/" + localStorage.userRole +"/modifyPatient",
     type: "POST",
     data: {'rut': $('.rut')[1].value, 'name': $('.name')[1].value, 'lastname': $('.lastname')[1].value,
            'birthdate': birthdate, 'email': $('.email')[1].value, 'phone': $('.phone')[1].value,
