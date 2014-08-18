@@ -7,7 +7,7 @@
 @stop()
 
 @section('section')
-  <div class="panel panel-primary">
+  <div id="selectPatientPanel" class="panel panel-primary">
     <div class="panel-heading">
       <h4 class="panel-title">
           <span class="glyphicon glyphicon-user"></span>
@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="panel panel-primary">
+  <div id="infoPatient" class="panel panel-primary">
     <div class="panel-heading">
       <h4 class="panel-title">
           <span class="glyphicon glyphicon-list-alt"></span>
@@ -88,7 +88,7 @@
     </div>
   </div>
 
-  <div class="panel panel-primary">
+  <div id="fPatient" class="panel panel-primary">
     <div class="panel-heading">
       <h4 class="panel-title">
           <span class="glyphicon glyphicon-list-alt"></span>

@@ -1,7 +1,7 @@
+
 $(function () {
   $("#helpMe").click(helpMeEvent);
-  tour.setCurrentStep(3);
-  tour.start(true);
+  tour.start();
 });
 
 var helpMeEvent = function(){

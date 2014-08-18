@@ -9,7 +9,7 @@
 @stop()
 
 @section('section')
-    <div class="panel panel-primary">
+    <div id="addPatientPanel" class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div class="panel panel-primary">
+    <div id="listPatientsPanel" class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -53,7 +53,7 @@
                   <th class="temail">Email</th>
                   <th class="tphone">Teléfono</th>
                   <th class="tcity">Ciudad</th>
-                  <th class="tactions">Acciones</th>
+                  <th id="tableOptions" class="tactions">Opciones</th>
                 </tr>
               </thead>
               <tbody align="center">

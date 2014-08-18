@@ -5,7 +5,7 @@
 @stop()
 
 @section('section')
-    <div class="panel panel-primary">
+    <div id="subscriptionState" class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <div class="panel panel-primary">
+    <div id="pays" class="panel panel-primary">
       <div class="panel-heading">
         <h4 class="panel-title">
           <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">

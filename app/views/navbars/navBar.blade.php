@@ -34,9 +34,9 @@
         </form>
       </div>
       <ul class="nav navbar-nav navbar-right">
-        <li>
+        <!--<li>
           <a id="helpMe" class="glyphicon glyphicon-question-sign"></a>
-        </li>
+        </li>-->
         <li class="dropdown">
           <a class="dropdown dropdown-toggle" data-toggle="dropdown" href="#">
             {{ Auth::user()->name }} {{ Auth::user()->lastname }} 

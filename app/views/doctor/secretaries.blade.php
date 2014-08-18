@@ -95,6 +95,6 @@
 {{ HTML::script('assets/js/jquery.dataTables.min.js') }}
 {{ HTML::script('assets/js/dataTables.bootstrap.js') }}
 {{ HTML::script('assets/js/secretaries.js') }}
-  {{ HTML::script('assets/js/tours/doctor/secretariesTour.js') }}
+  {{ HTML::script('assets/js/tours/doctor/doctorSecretariesTour.js') }}
 
 @stop()

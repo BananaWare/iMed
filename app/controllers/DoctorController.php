@@ -6,7 +6,6 @@ class DoctorController extends SecretaryController {
   
   public function index()
   {
-    
     JavaScript::put([
       'hospitals' => Auth::user()->hospitals
     ]);

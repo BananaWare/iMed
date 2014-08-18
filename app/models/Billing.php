@@ -25,6 +25,41 @@ class Billing extends Eloquent {
     return '$ ' . number_format($this->amountPaid, 0, ',', '.');
   }
   
+  public function setPaymentMethodAttribute($value)
+  {
+    $v = null;
+    if ($value == 'deposit')
+      $v = 1;
+    if ($value == 'transfer')
+      $v = 2;
+    if ($value == 'creditCard')
+      $v = 3;
+      
+    $this->attributes['paymentMethod'] = $v;
+  }
+  
+  public function getPaymentMethodAttribute()
+  {
+    $v = null;
+    switch($v)
+    {
+      case 1:
+        $v = 'deposit';
+        break;
+      case 2:
+        $v = 'transfer';
+        break;
+      case 3:
+        $v = 'creditCard';
+        break;
+      default:
+        $v = $this->attributes['paymentMethod'];
+        break;
+    }
+    
+    $this->attributes['paymentMethod'] = $v;
+  }
+  
   public function getPaymentDateTimeFormattedAttribute()
 	{
     try

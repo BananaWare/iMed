@@ -4,6 +4,13 @@ $(function () {
 });
 
 var helpMeEvent = function(){
-  tour.setCurrentStep(0);
+  if(window.location.pathname.indexOf("doctor") > -1)
+  {
+    tour.setCurrentStep(9);
+  }
+  else
+  {
+      
+  }
   tour.start(true);
 }

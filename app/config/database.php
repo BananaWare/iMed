@@ -26,8 +26,9 @@ return array(
 	|
 	*/
 
-	'default' => 'mysql_azure',
-//'default' => 'mysql',
+//	'default' => 'mysql_azure',
+  //'default' => 'mysql',
+  'default' => 'sqlsrv',
   
 	/*
 	|--------------------------------------------------------------------------
@@ -88,10 +89,10 @@ return array(
 
 		'sqlsrv' => array(
 			'driver'   => 'sqlsrv',
-			'host'     => 'localhost',
-			'database' => 'database',
-			'username' => 'root',
-			'password' => '',
+			'host'     => 'j756gry7no.database.windows.net',
+			'database' => 'doct',
+			'username' => 'doctadmin',
+			'password' => 'a90960623A',
 			'prefix'   => '',
 		),
 

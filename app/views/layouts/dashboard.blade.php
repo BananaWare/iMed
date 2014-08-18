@@ -29,7 +29,7 @@
         @yield('modal')
       </div>
       <div class="col-md-12">
-        <div class="row row-offcanvas row-offcanvas-left">
+        <div id="sidebar" class="row row-offcanvas row-offcanvas-left">
           <div id="functions" class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <div class="list-group">
 

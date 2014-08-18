@@ -12,14 +12,14 @@ Agregar alerta de que quedan pocos días de suscripción.
 Calendario de selección de fecha está en inglés.
 Encontrar un nombre no usado para el sistema.
 Hacer menu para superadmin.
-Al apretar "imprimir" sale el rut y nombre de otro paciente, pero la receta bien.
+Los usuarios deben poder cambiar sus datos de perfil.
 
 
 
 
 ** Done:
 Al asignar hora se debería poder ingresar el rut y que el sistema solo detecte si es usuario nuevo o antiguo.
-
+Al apretar "imprimir" sale el rut y nombre de otro paciente, pero la receta bien.
 Los nombres de usuarios ahora siempre comenzarán con mayúscula.
 El buscador de magicSuggest ahora permite buscar por nombre, apellido, rut y rut formateado.
 Arreglar los combobox de pacientes, doctores, etc. En ellos aparece una imagen que no existe y comprobar sobre que campo se busca.
