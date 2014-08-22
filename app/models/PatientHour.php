@@ -13,6 +13,11 @@ class PatientHour extends Eloquent {
 	protected $table = 'patients_hours';
   protected $primaryKey = 'idHour';
   
+  public function get_confirmed()
+  {
+    return intval($this->get_attribute('confirmed'));
+  }
+  
   public function doctor()
   {
     return $this->belongsTo('User', 'doctorsRut', 'rut');
