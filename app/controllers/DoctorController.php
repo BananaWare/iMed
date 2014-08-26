@@ -208,8 +208,9 @@ class DoctorController extends SecretaryController {
       //Quitando los segundos, buscar mejor forma de hacerlo, quizas en el modelo.
       $z->startHour = substr($z->startHour, 0, -3);
       $z->endHour = substr($z->endHour, 0, -3);
-      $z->intervalTime = substr($z->intervalTime, 0, -3);
-                             
+      list($hours, $minutes) = preg_split("/:/", $z->intervalTime);
+      $z->intervalTime = 60 * $hours + $minutes;
+      
       $schedulesComplete[$z->dayOfWeek-1] = $z;
     }
     

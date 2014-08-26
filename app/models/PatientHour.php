@@ -13,9 +13,9 @@ class PatientHour extends Eloquent {
 	protected $table = 'patients_hours';
   protected $primaryKey = 'idHour';
   
-  public function get_confirmed()
+  public function getConfirmedAttribute($value)
   {
-    return intval($this->get_attribute('confirmed'));
+    return intval($value);
   }
   
   public function doctor()

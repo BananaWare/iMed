@@ -310,11 +310,12 @@ function getAvailableHoursEvents()
   //Obtengo las horas por día
   $.each(currentDoctor.patientsHours, function(key, value) {
     
-    var dayNumber = parseInt(moment(value.dateTimeAssign).utc().format('D'));
-    var monthNumber = parseInt(moment(value.dateTimeAssign).utc().format('MM'));
-    var dayOfWeek = parseInt(moment(value.dateTimeAssign).utc().format('d'));
+    var dayNumber = parseInt(moment(value.dateTimeAssign).format('D'));
+    var monthNumber = parseInt(moment(value.dateTimeAssign).format('MM'));
+    var dayOfWeek = parseInt(moment(value.dateTimeAssign).format('d'));
     var extraHours = getExtraHoursFromDay(moment(value.dateTimeAssign));
-    
+    console.log(monthNumber + " " + dayNumber);
+    console.log(value);
     (usedBlocksPerDay[monthNumber][dayNumber] == undefined) ? usedBlocksPerDay[monthNumber][dayNumber] = blocksPerDay[dayOfWeek] + extraHours - 1 :     usedBlocksPerDay[monthNumber][dayNumber] -= 1;
     
   }); 
@@ -371,7 +372,7 @@ function getAvailableHoursEvents()
             var endEvent = moment(initDate.utc());
             endEvent.hours(23)
             endEvent.minutes(59);
-            
+            //console.log(startEvent.format("YYYY MM D") + " " + usedBlocksPerDay[value][monthDay] + " " );
             var backgroundColor = (usedBlocksPerDay[value][monthDay] > 0) ? '#5cb85c' : '#f0ad4e';
             var title = (usedBlocksPerDay[value][monthDay] > 0) ? usedBlocksPerDay[value][monthDay] + ' Horas disponibles' : 'No quedan horas disponibles'; 
             

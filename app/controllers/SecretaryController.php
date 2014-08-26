@@ -634,7 +634,7 @@ class SecretaryController extends BaseController {
     $endHour = new DateTime($day . ' ' . $schedule->endHour);
     for($i=0; $i<$cS->extraHours; $i++)
     {
-      list($hours, $minutes, $seconds) = preg_split("/:/", $schedule->intervalTime);
+      list($hours, $minutes) = preg_split("/:/", $schedule->intervalTime);
       $endHour->add(new DateInterval('PT'. $hours . 'H' . $minutes .'M'));
     }
         

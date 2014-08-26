@@ -27,7 +27,7 @@ return array(
 	*/
 
 //	'default' => 'mysql_azure',
- // 'default' => 'mysql',
+  //'default' => 'mysql',
   'default' => 'sqlsrv',
   
 	/*
